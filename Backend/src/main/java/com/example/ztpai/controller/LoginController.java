@@ -19,7 +19,7 @@ public class LoginController {
     public ResponseEntity login(@RequestBody LoginRequest request) {
         try{
             String token = authService.login(request.getUsername(), request.getPassword());
-            return ResponseEntity.ok(token);
+            return ResponseEntity.status(201).body(token);
         }
         catch (Exception e){
             return ResponseEntity.status(401).body("Invalid credentials");

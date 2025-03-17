@@ -18,10 +18,10 @@ public class RegisterController {
 
         try{
             authService.register(registerRequest.getUsername(), registerRequest.getPassword());
-            return ResponseEntity.ok("Register succes");
+            return ResponseEntity.status(201).body("Register succes");
         } catch (Exception e) {
 
-            return ResponseEntity.status(401).body("Register failed");
+            return ResponseEntity.status(406).body("Register failed");
         }
 
 
