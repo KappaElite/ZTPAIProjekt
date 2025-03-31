@@ -30,7 +30,7 @@ function LoginPage() {
 
             if (response.data.token) {
                 localStorage.setItem('token', response.data.token);
-                navigate('/dashboard');
+                navigate('/test');
             } else {
                 setError(response.data.error || 'Login failed');
             }
