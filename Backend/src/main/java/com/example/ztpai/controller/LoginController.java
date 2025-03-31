@@ -6,6 +6,9 @@ import com.example.ztpai.service.AuthService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/auth")
 
@@ -19,10 +22,14 @@ public class LoginController {
     public ResponseEntity login(@RequestBody LoginRequest request) {
         try{
             String token = authService.login(request.getUsername(), request.getPassword());
-            return ResponseEntity.status(201).body(token);
+            Map<String, String> response = new HashMap<>();
+            response.put("token", token);
+            return ResponseEntity.ok(response);
         }
         catch (Exception e){
-            return ResponseEntity.status(401).body("Invalid credentials");
+            Map<String, String> error = new HashMap<>();
+            error.put("error", "Invalid credentials");
+            return ResponseEntity.status(401).body(error);
         }
     }
 }
