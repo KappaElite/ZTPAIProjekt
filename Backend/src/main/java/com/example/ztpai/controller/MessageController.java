@@ -38,6 +38,7 @@ public class MessageController {
 
         try{
             List<Message> messages = messageService.getMessagesBetween(sender_id, receiver_id);
+
             return ResponseEntity.ok(messages);
         }
         catch (Exception e){
