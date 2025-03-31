@@ -30,13 +30,15 @@ public class User {
 
     public User() {}
 
-    public User(String username, String passwordHash, String role) {
+    public User(String username, String passwordHash, String email, String role) {
         this.username = username;
         this.passwordHash = passwordHash;
         this.role = role;
+        this.email = email;
     }
 
     public String getUsername() {return username;}
     public String getPassword() {return passwordHash;}
     public String getRole() {return role;}
+    public String getEmail() {return email;}
 }

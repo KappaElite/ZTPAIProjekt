@@ -1,9 +1,11 @@
 package com.example.ztpai.service;
 
+import com.example.ztpai.Repository.UserRepository;
 import com.example.ztpai.model.User;
 import com.example.ztpai.security.JWTUtil;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -12,32 +14,41 @@ import java.util.List;
 @Service
 public class AuthService {
     private final JWTUtil jwtUtil;
+    private final UserRepository userRepository;
+    private final BCryptPasswordEncoder passwordEncoder;
 
-    private List<User> users = new ArrayList<>();
-
-    public AuthService(JWTUtil jwtUtil) {
+    public AuthService(UserRepository userRepository, JWTUtil jwtUtil) {
         this.jwtUtil = jwtUtil;
-        users.add(new User("admin", "admin", "ADMIN"));
-        users.add(new User("user", "user", "USER"));
+        this.userRepository = userRepository;
+        this.passwordEncoder = new BCryptPasswordEncoder();
     }
     public String login(String username, String password) {
-        return users.stream()
-                .filter(u -> u.getUsername().equals(username) && u.getPassword().equals(password))
-                .findFirst()
-                .map(user -> jwtUtil.generateToken(user.getUsername()))
-                .orElseThrow(() -> new RuntimeException("Invalid credentials"));
+       User user = userRepository.findByUsername(username)
+               .orElseThrow(() -> new RuntimeException("User not found"));
+
+       if(!passwordEncoder.matches(password, user.getPassword())) {
+           throw new RuntimeException("Wrong password");
+       }
+       return jwtUtil.generateToken(username);
+    }
+
+    public void register(String username, String password, String email){
+        if (userRepository.findByUsername(username).isPresent()) {
+            throw new RuntimeException("Username already in use");
+        }
+        if(userRepository.findByEmail(email).isPresent()) {
+            throw new RuntimeException("Email already in use");
+        }
+        String hashedPassword = passwordEncoder.encode(password);
+        //Na razie domyslnie dodaje uzytkowanika o roli USER, na przyszlosc trzeba dodac inne
+        User user = new User(username,hashedPassword,email,"USER");
+        userRepository.save(user);
     }
 
     public User getUserFromToken(String token) {
         String username = jwtUtil.extractUsername(token);
-        return users.stream()
-                .filter(u -> u.getUsername().equals(username))
-                .findFirst()
-                .orElse(null);
+        return userRepository.findByUsername(username).orElse(null);
     }
 
-    public void register(String username, String password){
-        //Metoda tymczasowa, brak połączaania z bazą danych
-        users.add(new User(username, password, "USER"));
-    }
+
 }
