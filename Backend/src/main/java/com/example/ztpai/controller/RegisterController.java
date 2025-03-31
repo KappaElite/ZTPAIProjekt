@@ -16,7 +16,6 @@ public class RegisterController {
 
     @PostMapping("/register")
     public ResponseEntity register(@RequestBody RegisterRequest registerRequest) {
-
         try{
             authService.register(registerRequest.getUsername(), registerRequest.getPassword(), registerRequest.getEmail());
             return ResponseEntity.status(201).body("Register succes");
@@ -24,7 +23,5 @@ public class RegisterController {
 
             return ResponseEntity.status(406).body("Register failed");
         }
-
-
     }
 }
