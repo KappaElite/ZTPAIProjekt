@@ -1,7 +1,11 @@
 package com.example.ztpai.controller;
 
 
+import com.example.ztpai.DTO.MessageRequest;
 import com.example.ztpai.model.Message;
+import com.example.ztpai.repository.MessageRepository;
+import com.example.ztpai.repository.UserRepository;
+import com.example.ztpai.service.MessageService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,29 +16,33 @@ import java.util.List;
 @RequestMapping("/api/chat")
 public class MessageController {
 
-    List<Message> listOfMessages = new ArrayList<>();
+    private final MessageService messageService;
 
-    //@PostMapping("/new/{conversation_id}/{sender_id}")
-    //public ResponseEntity newMessage(@RequestBody Message message, @PathVariable String conversation_id, @PathVariable String sender_id) {
-        //try{
-            //if(message.getMessageContent() == null){
-                //return ResponseEntity.status(400).body("Empty message");
-            //}
-            //message.setConversation_id(conversation_id);
-            //message.setSender_id(sender_id);
-            //listOfMessages.add(message);
-            //return ResponseEntity.status(201).body(listOfMessages.get(listOfMessages.size()-1).MessageInformation());
-        //}
-        //catch (Exception e){
-            //return ResponseEntity.status(400).body("Error while adding new message");
-        //}
-   // }
+    public MessageController(MessageService messageService) {
+        this.messageService = messageService;
+    }
 
-    //@GetMapping("/get/{conversation_id}/{sender_id}")
-    //public ResponseEntity getMessage(@PathVariable String conversation_id, @PathVariable String sender_id) {
+    @PostMapping("/new/{sender_id}/{receiver_id}")
+    public ResponseEntity newMessage(@RequestBody MessageRequest messageRequest, @PathVariable Long sender_id, @PathVariable Long receiver_id) {
+        try{
+            messageService.AddMesage(messageRequest.getContent(), sender_id, receiver_id);
+            return ResponseEntity.status(201).body("Message added successfully");
+        }
+        catch (Exception e){
+            return ResponseEntity.status(400).body("Error while adding new message");
+        }
+    }
 
-        //tutaj będzie odwołanie do klasy z service która będzie odpowiadała za zebranie informacji z bazy i ułożenie tego w jedną całość
-        //Message message = new Message(sender_id,conversation_id,"Test message for endpoint testing");
-       // return ResponseEntity.ok(message);
-    //}
+    @GetMapping("/get/{sender_id}/{receiver_id}")
+    public ResponseEntity<List<Message>> getMessages(@PathVariable Long sender_id, @PathVariable Long receiver_id) {
+
+        try{
+            List<Message> messages = messageService.getMessagesBetween(sender_id, receiver_id);
+            return ResponseEntity.ok(messages);
+        }
+        catch (Exception e){
+            return ResponseEntity.status(400).body(new ArrayList<>());
+        }
+
+    }
 }

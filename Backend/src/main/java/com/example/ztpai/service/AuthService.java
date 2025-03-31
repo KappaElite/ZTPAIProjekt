@@ -1,15 +1,10 @@
 package com.example.ztpai.service;
 
-import com.example.ztpai.Repository.UserRepository;
+import com.example.ztpai.repository.UserRepository;
 import com.example.ztpai.model.User;
 import com.example.ztpai.security.JWTUtil;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 @Service
 public class AuthService {
