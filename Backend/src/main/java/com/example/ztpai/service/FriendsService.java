@@ -1,8 +1,12 @@
 package com.example.ztpai.service;
 
+import com.example.ztpai.DTO.FriendsDTO;
 import com.example.ztpai.model.User;
 import com.example.ztpai.repository.UserRepository;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class FriendsService {
@@ -52,6 +56,14 @@ public class FriendsService {
         friend.getFriends().remove(user);
         userRepository.save(user);
         userRepository.save(friend);
+    }
+
+    public List<FriendsDTO> getFriends(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        return user.getFriends().stream()
+                .map(FriendsDTO::new)
+                .collect(Collectors.toList());
     }
 
 }
