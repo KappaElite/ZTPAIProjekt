@@ -2,6 +2,7 @@ package com.example.ztpai.model;
 
 import jakarta.persistence.*;
 import java.util.List;
+import java.util.Locale;
 
 @Entity
 @Table(name = "users")
@@ -28,6 +29,14 @@ public class User {
     @OneToMany(mappedBy = "receiver", cascade = CascadeType.ALL)
     private List<Message> receivedMessages;
 
+    @ManyToMany
+    @JoinTable(
+            name = "user_friends",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "friend_id")
+    )
+    private List<User> friends;
+
     public User() {}
 
     public User(String username, String passwordHash, String email, String role) {
@@ -41,4 +50,5 @@ public class User {
     public String getPassword() {return passwordHash;}
     public String getRole() {return role;}
     public String getEmail() {return email;}
+    public List<User> getFriends() {return friends;}
 }
