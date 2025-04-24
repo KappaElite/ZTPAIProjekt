@@ -1,6 +1,8 @@
 package com.example.ztpai.service;
 
 import com.example.ztpai.DTO.FriendsDTO;
+import com.example.ztpai.exception.GlobalExceptions;
+import com.example.ztpai.exception.friend.FriendExceptions;
 import com.example.ztpai.model.User;
 import com.example.ztpai.repository.UserRepository;
 import org.springframework.stereotype.Service;
@@ -20,16 +22,16 @@ public class FriendsService {
     public void AddFriend(Long userId, Long friendID) {
 
         if(userId.equals(friendID)){
-            throw new IllegalArgumentException("You cant add yourself");
+            throw new FriendExceptions.AddingYourselfException("You can't add yourself");
         }
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new GlobalExceptions.UserNotFoundException("User not found"));
         User friend = userRepository.findById(friendID)
-                .orElseThrow(() -> new RuntimeException("Friend not found"));
+                .orElseThrow(() -> new FriendExceptions.FriendNotFoundException("Friend not found"));
 
         if(userRepository.existsFriendship(userId, friendID)) {
-            throw new IllegalArgumentException("Friendship already exists");
+            throw new FriendExceptions.FriendshipAlreadyExistsException("Friendship already exists");
         }
 
         //Tutaj do poprawki w przyszlosci, User dodajac kogoos jest z automatu przyjety przez druga strone
@@ -42,15 +44,15 @@ public class FriendsService {
 
     public void RemoveFriend(Long userId, Long friendID) {
         if(userId.equals(friendID)){
-            throw new IllegalArgumentException("You cant remove yourself");
+            throw new FriendExceptions.DeletingYourselfException("You can't delete yourself");
         }
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new GlobalExceptions.UserNotFoundException("User not found"));
         User friend = userRepository.findById(friendID)
-                .orElseThrow(() -> new RuntimeException("Friend not found"));
+                .orElseThrow(() -> new FriendExceptions.FriendNotFoundException("Friend not found"));
 
         if(!userRepository.existsFriendship(userId, friendID)) {
-            throw new IllegalArgumentException("Friendship already deleted");
+            throw new FriendExceptions.FriendshipAlreadyDeletedException("Friendship already deleted");
         }
         user.getFriends().remove(friend);
         friend.getFriends().remove(user);
@@ -60,7 +62,7 @@ public class FriendsService {
 
     public List<FriendsDTO> getFriends(Long userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new GlobalExceptions.UserNotFoundException("User not found"));
         return user.getFriends().stream()
                 .map(FriendsDTO::new)
                 .collect(Collectors.toList());

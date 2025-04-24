@@ -1,6 +1,8 @@
 package com.example.ztpai.service;
 
 
+import com.example.ztpai.exception.GlobalExceptions;
+import com.example.ztpai.exception.message.MessageExceptions;
 import com.example.ztpai.model.Message;
 import com.example.ztpai.model.User;
 import com.example.ztpai.repository.MessageRepository;
@@ -22,13 +24,13 @@ public class MessageService {
 
     public void AddMesage(String content, Long senderId, Long receiverId) {
         if(content == null || content.trim().isEmpty()){
-            throw new IllegalArgumentException("Message content cannot be empty");
+            throw new MessageExceptions.MessageCannotBeEmptyException("Message cannot be empty");
         }
         Optional<User> sender = userRepository.findById(senderId);
         Optional<User> receiver = userRepository.findById(receiverId);
 
         if(sender.isEmpty() || receiver.isEmpty()){
-            throw new IllegalArgumentException("Sender or Receiver not found");
+            throw new GlobalExceptions.UserNotFoundException("User not found");
         }
         Message message = new Message(sender.get(), receiver.get(), content);
         messageRepository.save(message);
@@ -39,7 +41,7 @@ public class MessageService {
         Optional<User> receiver = userRepository.findById(receiverId);
 
         if(sender.isEmpty() || receiver.isEmpty()){
-            throw new IllegalArgumentException("Sender or Receiver not found");
+            throw new GlobalExceptions.UserNotFoundException("User not found");
         }
         return messageRepository.findBySenderIdAndReceiverIdOrReceiverIdAndSenderId(senderId, receiverId, senderId, receiverId);
     }

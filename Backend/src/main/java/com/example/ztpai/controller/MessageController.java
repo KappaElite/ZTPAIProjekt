@@ -24,26 +24,13 @@ public class MessageController {
 
     @PostMapping("/new/{sender_id}/{receiver_id}")
     public ResponseEntity newMessage(@RequestBody MessageRequest messageRequest, @PathVariable Long sender_id, @PathVariable Long receiver_id) {
-        try{
-            messageService.AddMesage(messageRequest.getContent(), sender_id, receiver_id);
-            return ResponseEntity.status(201).body("Message added successfully");
-        }
-        catch (Exception e){
-            return ResponseEntity.status(400).body("Error while adding new message");
-        }
+        messageService.AddMesage(messageRequest.getContent(), sender_id, receiver_id);
+        return ResponseEntity.status(201).body("Message added successfully");
     }
 
     @GetMapping("/get/{sender_id}/{receiver_id}")
     public ResponseEntity<List<Message>> getMessages(@PathVariable Long sender_id, @PathVariable Long receiver_id) {
-
-        try{
-            List<Message> messages = messageService.getMessagesBetween(sender_id, receiver_id);
-
-            return ResponseEntity.ok(messages);
-        }
-        catch (Exception e){
-            return ResponseEntity.status(400).body(new ArrayList<>());
-        }
-
+        List<Message> messages = messageService.getMessagesBetween(sender_id, receiver_id);
+        return ResponseEntity.ok(messages);
     }
 }
