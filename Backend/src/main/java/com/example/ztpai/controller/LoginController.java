@@ -3,6 +3,7 @@ package com.example.ztpai.controller;
 import com.example.ztpai.DTO.LoginRequest;
 import com.example.ztpai.model.User;
 import com.example.ztpai.service.AuthService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,7 +20,7 @@ public class LoginController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity login(@RequestBody LoginRequest request) {
+    public ResponseEntity login( @Valid @RequestBody LoginRequest request) {
         String token = authService.login(request.getUsername(), request.getPassword());
         Map<String, String> response = new HashMap<>();
         response.put("token", token);

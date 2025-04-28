@@ -51,4 +51,6 @@ public class User {
     public String getRole() {return role;}
     public String getEmail() {return email;}
     public List<User> getFriends() {return friends;}
+    public void setUsername(String username) {this.username = username;}
+    public void setPassword(String password) {this.passwordHash = password;}
 }

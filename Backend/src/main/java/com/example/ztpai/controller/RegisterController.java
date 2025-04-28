@@ -3,6 +3,7 @@ import com.example.ztpai.DTO.LoginRequest;
 import com.example.ztpai.DTO.RegisterRequest;
 import com.example.ztpai.model.User;
 import com.example.ztpai.service.AuthService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,7 +16,7 @@ public class RegisterController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity register(@RequestBody RegisterRequest registerRequest) {
+    public ResponseEntity register( @Valid @RequestBody RegisterRequest registerRequest) {
         authService.register(registerRequest.getUsername(), registerRequest.getPassword(), registerRequest.getEmail());
         return ResponseEntity.status(201).body("Register succes");
     }

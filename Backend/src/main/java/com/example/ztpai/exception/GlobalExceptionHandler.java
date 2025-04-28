@@ -61,6 +61,11 @@ public class GlobalExceptionHandler {
         return buildResponse(ex.getMessage(), 410);
     }
 
+    @ExceptionHandler(LoginExceptions.EmptyLoginException.class)
+    public ResponseEntity<?> handleEmptyLogin(LoginExceptions.EmptyLoginException ex) {
+        return buildResponse(ex.getMessage(), 401);
+    }
+
 
     private ResponseEntity<Map<String, Object>> buildResponse(String message, int status) {
         Map<String, Object> body = new HashMap<>();

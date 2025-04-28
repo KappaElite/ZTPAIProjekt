@@ -22,8 +22,10 @@ public class AuthService {
         this.passwordEncoder = new BCryptPasswordEncoder();
     }
     public String login(String username, String password) {
-       User user = userRepository.findByUsername(username)
+
+        User user = userRepository.findByUsername(username)
                .orElseThrow(() -> new GlobalExceptions.UserNotFoundException("User not found"));
+
 
        if(!passwordEncoder.matches(password, user.getPassword())) {
            throw new LoginExceptions.WrongPasswordException("Wrong password");
