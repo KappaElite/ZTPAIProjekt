@@ -14,11 +14,26 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.List;
 
 @Component
 public class JWTFilter extends OncePerRequestFilter {
     private final JWTUtil jwtUtil;
     private final AuthService authService;
+
+    private static final List<String> WHITELIST = List.of(
+            "/api/auth/login",
+            "/api/auth/register",
+            "/v3/api-docs",
+            "/v3/api-docs/",
+            "/v3/api-docs/swagger-config",
+            "/swagger-ui/",
+            "/swagger-ui/",
+            "/swagger-ui/index.html",
+            "/swagger-ui.html",
+            "/api/docs",
+            "/api/docs/"
+    );
 
     public JWTFilter(JWTUtil jwtUtil, AuthService authService) {
         this.jwtUtil = jwtUtil;
@@ -28,6 +43,14 @@ public class JWTFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
+
+        String path = request.getRequestURI();
+
+        if (isWhitelisted(path)) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         String authHeader = request.getHeader("Authorization");
 
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
@@ -42,6 +65,13 @@ public class JWTFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(authToken);
             }
         }
+
         filterChain.doFilter(request, response);
+    }
+
+    private boolean isWhitelisted(String path) {
+        return WHITELIST.stream().anyMatch(path::equals) ||
+                path.startsWith("/v3/api-docs") ||
+                path.startsWith("/swagger-ui");
     }
 }
