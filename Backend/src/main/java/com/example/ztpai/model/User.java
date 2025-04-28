@@ -53,4 +53,5 @@ public class User {
     public List<User> getFriends() {return friends;}
     public void setUsername(String username) {this.username = username;}
     public void setPassword(String password) {this.passwordHash = password;}
+    public void setId(Long id) {this.id = id;}
 }

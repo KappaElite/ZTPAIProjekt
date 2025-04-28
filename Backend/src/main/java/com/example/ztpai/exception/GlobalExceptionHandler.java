@@ -3,6 +3,7 @@ package com.example.ztpai.exception;
 import com.example.ztpai.exception.auth.LoginExceptions;
 import com.example.ztpai.exception.auth.RegisterExceptions;
 import com.example.ztpai.exception.friend.FriendExceptions;
+import com.example.ztpai.exception.message.MessageExceptions;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -64,6 +65,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(LoginExceptions.EmptyLoginException.class)
     public ResponseEntity<?> handleEmptyLogin(LoginExceptions.EmptyLoginException ex) {
         return buildResponse(ex.getMessage(), 401);
+    }
+
+    @ExceptionHandler(MessageExceptions.MessageCannotBeEmptyException.class)
+    public ResponseEntity<?> handleMessageCannotBeEmpty(MessageExceptions.MessageCannotBeEmptyException ex) {
+        return buildResponse(ex.getMessage(), 400);
     }
 
 
