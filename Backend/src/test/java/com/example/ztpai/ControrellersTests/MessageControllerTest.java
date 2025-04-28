@@ -1,4 +1,4 @@
-package com.example.ztpai;
+package com.example.ztpai.ControrellersTests;
 
 import com.example.ztpai.controller.MessageController;
 import com.example.ztpai.exception.GlobalExceptions;
@@ -25,8 +25,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;

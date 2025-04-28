@@ -1,4 +1,4 @@
-package com.example.ztpai;
+package com.example.ztpai.ControrellersTests;
 
 import com.example.ztpai.controller.RegisterController;
 import com.example.ztpai.exception.auth.RegisterExceptions;
@@ -6,7 +6,6 @@ import com.example.ztpai.security.JWTFilter;
 import com.example.ztpai.security.JWTUtil;
 import com.example.ztpai.security.SecurityConfig;
 import com.example.ztpai.service.AuthService;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -18,7 +17,6 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;

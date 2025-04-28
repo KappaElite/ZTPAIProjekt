@@ -1,4 +1,4 @@
-package com.example.ztpai;
+package com.example.ztpai.ControrellersTests;
 
 import com.example.ztpai.DTO.FriendsDTO;
 import com.example.ztpai.controller.FriendsController;
@@ -21,7 +21,6 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
 
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;

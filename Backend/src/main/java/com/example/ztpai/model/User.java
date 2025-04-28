@@ -54,4 +54,5 @@ public class User {
     public void setUsername(String username) {this.username = username;}
     public void setPassword(String password) {this.passwordHash = password;}
     public void setId(Long id) {this.id = id;}
+    public long getId() {return id;}
 }
