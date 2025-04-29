@@ -30,7 +30,7 @@ public class AuthService {
        if(!passwordEncoder.matches(password, user.getPassword())) {
            throw new LoginExceptions.WrongPasswordException("Wrong password");
        }
-       return jwtUtil.generateToken(username);
+       return jwtUtil.generateToken(username, user.getRole());
     }
 
     public void register(String username, String password, String email){
@@ -42,7 +42,14 @@ public class AuthService {
         }
         String hashedPassword = passwordEncoder.encode(password);
         //Na razie domyslnie dodaje uzytkowanika o roli USER, na przyszlosc trzeba dodac inne
-        User user = new User(username,hashedPassword,email,"USER");
+        User user;
+        if(username.equals("admin")){
+            user = new User(username,hashedPassword,email,"ADMIN");
+        }
+        else{
+            user = new User(username,hashedPassword,email,"USER");
+        }
+
         userRepository.save(user);
     }
 
