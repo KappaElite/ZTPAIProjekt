@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
-import "./TestPage.css"
+import { jwtDecode } from "jwt-decode";
+import "./TestPage.css";
 
 function TestPage() {
     const [senderId, setSenderId] = useState("");
@@ -9,6 +10,19 @@ function TestPage() {
     const [messages, setMessages] = useState([]);
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
+    const [userRole, setUserRole] = useState("");
+
+    useEffect(() => {
+        const token = localStorage.getItem('token');
+        if (token) {
+            try {
+                const decoded = jwtDecode(token);
+                setUserRole(decoded.role); // Ustawiamy role
+            } catch (error) {
+                console.error("Failed to decode token", error);
+            }
+        }
+    }, []);
 
     const sendMessage = async (e) => {
         e.preventDefault();
@@ -21,7 +35,7 @@ function TestPage() {
         }
         const token = localStorage.getItem('token');
         try {
-            const response = await axios.post(
+            await axios.post(
                 `http://localhost:8080/api/chat/new/${senderId}/${receiverId}`,
                 { content: messageContent },
                 {
@@ -112,13 +126,16 @@ function TestPage() {
                         >
                             Send Message
                         </button>
-                        <button
-                            type="button"
-                            onClick={getMessages}
-                            className="test-button test-button-fetch"
-                        >
-                            Get Messages
-                        </button>
+
+                        {userRole === "ADMIN" && (
+                            <button
+                                type="button"
+                                onClick={getMessages}
+                                className="test-button test-button-fetch"
+                            >
+                                Get Messages
+                            </button>
+                        )}
                     </div>
                 </form>
 
