@@ -1,4 +1,4 @@
-package com.example.ztpai.ControrellersTests;
+package com.example.ztpai;
 
 import com.example.ztpai.DTO.FriendsDTO;
 import com.example.ztpai.controller.FriendsController;
@@ -12,7 +12,6 @@ import com.example.ztpai.service.FriendsService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -22,21 +21,27 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
 
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(FriendsController.class)
-@Import({SecurityConfig.class, JWTUtil.class, JWTFilter.class})
+@Import({SecurityConfig.class, JWTUtil.class})
 @AutoConfigureMockMvc(addFilters = false)
 class FriendsControllerTest {
 
     @Autowired
     private MockMvc mvc;
 
-    @Mock
+    @MockBean
     private FriendsService friendsService;
 
+    @MockBean
+    private AuthService authService;
+
+    @MockBean
+    private JWTFilter jwtFilter;
 
     @Nested
     @DisplayName("POST /api/friend/add/{user}/{friend}")
@@ -54,7 +59,7 @@ class FriendsControllerTest {
         @DisplayName("400 - adding yourself")
         void addFriend_yourself() throws Exception {
             doThrow(new FriendExceptions.AddingYourselfException("You cant add yourself"))
-                .when(friendsService).AddFriend(1L, 1L);
+                    .when(friendsService).AddFriend(1L, 1L);
             mvc.perform(post("/api/friend/add/1/1"))
                     .andExpect(status().isBadRequest())
                     .andExpect(jsonPath("$.message").value("You cant add yourself"))
