@@ -1,6 +1,8 @@
 package com.example.ztpai.service;
 
 
+import com.example.ztpai.DTO.MessageDTO;
+import com.example.ztpai.DTO.UserDTO;
 import com.example.ztpai.exception.GlobalExceptions;
 import com.example.ztpai.exception.message.MessageExceptions;
 import com.example.ztpai.model.Message;
@@ -11,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class MessageService {
@@ -36,14 +39,22 @@ public class MessageService {
         messageRepository.save(message);
     }
 
-    public List<Message> getMessagesBetween(Long senderId, Long receiverId) {
+    public List<MessageDTO> getMessagesBetween(Long senderId, Long receiverId) {
         Optional<User> sender = userRepository.findById(senderId);
         Optional<User> receiver = userRepository.findById(receiverId);
 
-        if(sender.isEmpty() || receiver.isEmpty()){
+        if (sender.isEmpty() || receiver.isEmpty()) {
             throw new GlobalExceptions.UserNotFoundException("User not found");
         }
-        return messageRepository.findBySenderIdAndReceiverIdOrReceiverIdAndSenderId(senderId, receiverId, senderId, receiverId);
+
+        List<Message> messages = messageRepository.findBySenderIdAndReceiverIdOrReceiverIdAndSenderId(senderId, receiverId, senderId, receiverId);
+
+        return messages.stream().map(message -> new MessageDTO(
+                message.getContent(),
+                message.getSentAt(),
+                new UserDTO(message.getSender().getId(), message.getSender().getUsername()),
+                new UserDTO(message.getReceiver().getId(), message.getReceiver().getUsername())
+        )).collect(Collectors.toList());
     }
 
 

@@ -19,14 +19,15 @@ function TestPage() {
             setError("All fields are necessary");
             return;
         }
-
+        const token = localStorage.getItem('token');
         try {
             const response = await axios.post(
                 `http://localhost:8080/api/chat/new/${senderId}/${receiverId}`,
                 { content: messageContent },
                 {
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
                     }
                 }
             );
@@ -46,10 +47,15 @@ function TestPage() {
             setError("Provide ID for sender and receiver");
             return;
         }
-
+        const token = localStorage.getItem('token');
         try {
             const response = await axios.get(
-                `http://localhost:8080/api/chat/get/${senderId}/${receiverId}`
+                `http://localhost:8080/api/chat/get/${senderId}/${receiverId}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                }
             );
             setMessages(response.data);
         } catch (err) {

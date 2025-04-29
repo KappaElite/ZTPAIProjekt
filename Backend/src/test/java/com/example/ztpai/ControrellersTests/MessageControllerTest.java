@@ -1,5 +1,7 @@
 package com.example.ztpai.ControrellersTests;
 
+import com.example.ztpai.DTO.MessageDTO;
+import com.example.ztpai.DTO.UserDTO;
 import com.example.ztpai.controller.MessageController;
 import com.example.ztpai.exception.GlobalExceptions;
 import com.example.ztpai.exception.message.MessageExceptions;
@@ -22,6 +24,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 
@@ -120,14 +123,13 @@ public class MessageControllerTest {
 
         @BeforeEach
         void setup() {
-            User sender = new User();
-            sender.setId(validSenderId);
-            User receiver = new User();
-            receiver.setId(validReceiverId);
+            UserDTO senderDTO = new UserDTO(validSenderId, "SenderName");
+            UserDTO receiverDTO = new UserDTO(validReceiverId, "ReceiverName");
 
-            Message message1 = new Message(sender, receiver, "Hello");
-            Message message2 = new Message(receiver, sender, "Hi there");
-            List<Message> messages = Arrays.asList(message1, message2);
+            MessageDTO message1 = new MessageDTO("Hello", LocalDateTime.of(2024, 4, 29, 12, 0), senderDTO, receiverDTO);
+            MessageDTO message2 = new MessageDTO("Hi there", LocalDateTime.of(2024, 4, 29, 12, 5), receiverDTO, senderDTO);
+
+            List<MessageDTO> messages = Arrays.asList(message1, message2);
 
             when(messageService.getMessagesBetween(validSenderId, validReceiverId))
                     .thenReturn(messages);
