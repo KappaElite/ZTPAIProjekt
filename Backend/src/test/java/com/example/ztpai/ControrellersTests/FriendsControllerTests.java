@@ -140,7 +140,7 @@ class FriendsControllerTest {
         @DisplayName("200 – getting list of friends")
         void getFriends_ok() throws Exception {
             when(friendsService.getFriends(1L))
-                    .thenReturn(List.of(new FriendsDTO("Jan", "jan.kowalski@gmail.com")));
+                    .thenReturn(List.of(new FriendsDTO("Jan", "jan.kowalski@gmail.com",2L)));
 
             mvc.perform(get("/api/friend/get/1"))
                     .andExpect(status().isOk())

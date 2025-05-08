@@ -13,11 +13,12 @@ import java.util.Date;
 public class JWTUtil {
     private final Key SECRET_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS512);
 
-    public String generateToken(String username, String role) {
+    public String generateToken(String username, String role, Long userID) {
 
         String tmp = Jwts.builder()
                 .setSubject(username)
                 .claim("role",role)
+                .claim("userID",userID)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60))
                 .signWith(SECRET_KEY, SignatureAlgorithm.HS512)

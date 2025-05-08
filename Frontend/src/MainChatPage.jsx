@@ -1,22 +1,41 @@
 import React from "react";
 import "./MainChatPage.css";
+import {useEffect, useState} from "react";
+import { jwtDecode } from "jwt-decode";
+import axios from "axios";
 
 function MainChatPage() {
+
+    const [friends, setFriends] = useState([]);
+    useEffect(() => {
+
+        const userId = jwtDecode(localStorage.getItem('token')).userID;
+        const token = localStorage.getItem('token');
+        axios.get(`http://localhost:8080/api/friend/get/${userId}`, {
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        })
+            .then((response) => {
+                setFriends(response.data);
+            })
+            .catch((error) => {
+                console.error("Error fetching friends:", error);
+            });
+    }, []);
     return (
         <div className="chat-container">
             <div className="sidebar">
                 <div className="sidebar-header">Messages</div>
                 <div className="friend-list">
-                    <div className="friend-item">
-                        <div className="friend-avatar"></div>
-                        <div className="friend-name">Krzysztof Nowak</div>
-                        <div className="delete-icon">🗑️</div>
-                    </div>
-                    <div className="friend-item">
-                        <div className="friend-avatar"></div>
-                        <div className="friend-name">Jan Kowalski</div>
-                        <div className="delete-icon">🗑️</div>
-                    </div>
+                    {friends.map((friend) => (
+                        <div key={friend.id} className="friend-item">
+                            <div className="friend-avatar"></div>
+                            <div className="friend-name">{friend.username}</div>
+                            <div className="delete-icon">🗑️</div>
+                        </div>
+                    ))}
                 </div>
             </div>
             <div className="chat-panel">

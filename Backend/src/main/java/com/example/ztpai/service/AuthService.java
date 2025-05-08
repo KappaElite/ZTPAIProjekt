@@ -30,7 +30,7 @@ public class AuthService {
        if(!passwordEncoder.matches(password, user.getPassword())) {
            throw new LoginExceptions.WrongPasswordException("Wrong password");
        }
-       return jwtUtil.generateToken(username, user.getRole());
+       return jwtUtil.generateToken(username, user.getRole(), user.getId());
     }
 
     public void register(String username, String password, String email){
