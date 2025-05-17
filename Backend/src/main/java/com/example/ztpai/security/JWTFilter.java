@@ -32,7 +32,10 @@ public class JWTFilter extends OncePerRequestFilter {
             "/webjars/**",
             "/swagger-resources/**",
             "/api/docs",
-            "/api/docs/**"
+            "/api/docs/**",
+            "/ws",
+            "/ws/**",
+            "/ws/**/"
     );
 
     public JWTFilter(JWTUtil jwtUtil, AuthService authService) {
@@ -72,6 +75,7 @@ public class JWTFilter extends OncePerRequestFilter {
     private boolean isWhitelisted(String path) {
         return WHITELIST.stream().anyMatch(path::equals) ||
                 path.startsWith("/v3/api-docs") ||
-                path.startsWith("/swagger-ui");
+                path.startsWith("/swagger-ui") ||
+                path.startsWith("/ws");
     }
 }
