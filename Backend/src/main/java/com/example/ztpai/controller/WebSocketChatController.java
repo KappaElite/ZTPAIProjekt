@@ -25,6 +25,7 @@ public class WebSocketChatController {
     @MessageMapping("/send")
     public void processMessage(@Payload MessageDTO message, Principal principal) {
         String sender = principal.getName();
+        System.out.println("Nazwa wysylajacego:" + sender);
         Long senderId= userRepository.findByUsername(sender).get().getId();
         messageService.AddMesage(message.getContent(), senderId, message.getReceiver().getId());
         messagingTemplate.convertAndSendToUser(
