@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { jwtDecode } from "jwt-decode";
 import { Client } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
@@ -11,11 +11,24 @@ function MainChatPage() {
     const [messages, setMessages] = useState([]);
     const [messageText, setMessageText] = useState("");
     const clientRef = useRef(null);
+    const [currentUser, setCurrentUser] = useState(null);
+    const selectedFriendRef = useRef(null);
+
+    useEffect(() => {
+        selectedFriendRef.current = selectedFriend;
+    }, [selectedFriend]);
+
 
     useEffect(() => {
         const token = localStorage.getItem("token");
-        const userId = jwtDecode(token).userID;
-        axios.get(`http://localhost:8080/api/friend/get/${userId}`, {
+        const decoded = jwtDecode(token);
+        setCurrentUser({
+            id: decoded.userID,
+            username: decoded.sub
+        });
+
+
+        axios.get(`http://localhost:8080/api/friend/get/${decoded.userID}`, {
             headers: {
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${token}`,
@@ -30,11 +43,9 @@ function MainChatPage() {
     }, []);
 
     useEffect(() => {
-        if(selectedFriend) {
+        if (selectedFriend && currentUser) {
             const token = localStorage.getItem("token");
-            const userId = jwtDecode(token).userID;
-            const friendID = selectedFriend ? selectedFriend.id : null;
-            axios.get(`http://localhost:8080/api/chat/get/${userId}/${friendID}`, {
+            axios.get(`http://localhost:8080/api/chat/get/${currentUser.id}/${selectedFriend.id}`, {
                 headers: {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`,
@@ -47,42 +58,60 @@ function MainChatPage() {
                     console.error("Error fetching messages:", error);
                 });
         }
-        }, [selectedFriend]);
+    }, [selectedFriend, currentUser]);
+
 
     useEffect(() => {
+        if (!currentUser) return;
+
         const token = localStorage.getItem("token");
-        const username = jwtDecode(token).sub;
         const socket = new SockJS("http://localhost:8080/ws");
         const client = new Client({
             webSocketFactory: () => socket,
             connectHeaders: {
                 Authorization: `Bearer ${token}`,
             },
-            onConnect: () => {
-                client.subscribe("/user/queue/messages", (message) => {
-                    const receivedMessage = JSON.parse(message.body);
-                    if (selectedFriend && receivedMessage.sender.id === selectedFriend.id) {
-                        setMessages(prev => [...prev, receivedMessage]);
-                    }
-                });
+            debug: (str) => {
+                console.log('STOMP: ' + str);
             },
         });
-        client.activate();
+
+        client.onConnect = () => {
+            console.log('Connected to WebSocket');
+
+            client.subscribe(`/queue/messages/${currentUser.id}`, (message) => {
+                const selected = selectedFriendRef.current;
+                const receivedMessage = JSON.parse(message.body);
+                if (selected && receivedMessage.sender.id == selected.id) {
+                    setMessages(prev => [...prev, receivedMessage]);
+                }
+            });
+        };
+
+        client.onStompError = (frame) => {
+            console.error('STOMP error', frame);
+        };
+
         clientRef.current = client;
+        client.activate();
 
         return () => {
-            if (clientRef.current) {
-                clientRef.current.deactivate();
+            if (client.connected) {
+                client.deactivate();
             }
         };
-    }, [selectedFriend]);
+    }, [currentUser]);
 
     const sendMessage = () => {
-        const token = localStorage.getItem("token");
-        const username = jwtDecode(token).sub;
+        if (!messageText.trim() || !selectedFriend || !currentUser || !clientRef.current?.connected) return;
 
-        const message = {
+        const messageDTO = {
             content: messageText,
+            sentAt: new Date(),
+            sender: {
+                id: currentUser.id,
+                username: currentUser.username
+            },
             receiver: {
                 id: selectedFriend.id,
                 username: selectedFriend.username
@@ -90,22 +119,21 @@ function MainChatPage() {
         };
 
         clientRef.current.publish({
-            destination: "/api/chat/send",
-            body: JSON.stringify(message),
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
+            destination: "/app/chat",
+            body: JSON.stringify(messageDTO)
         });
 
-        setMessages(prev => [...prev, {
-            content: messageText,
-            sender: { username }
-        }]);
 
+        setMessages(prev => [...prev, messageDTO]);
         setMessageText("");
     };
 
-
+    const handleKeyPress = (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            sendMessage();
+        }
+    };
 
     const handleFriendClick = (friend) => {
         setSelectedFriend(friend);
@@ -120,12 +148,11 @@ function MainChatPage() {
                     {friends.map((friend) => (
                         <div
                             key={friend.id}
-                            className="friend-item"
+                            className={`friend-item ${selectedFriend?.id === friend.id ? 'selected' : ''}`}
                             onClick={() => handleFriendClick(friend)}
                         >
                             <div className="friend-avatar"></div>
                             <div className="friend-name">{friend.username}</div>
-                            <div className="delete-icon">🗑️</div>
                         </div>
                     ))}
                 </div>
@@ -140,8 +167,16 @@ function MainChatPage() {
                         </div>
                         <div className="chat-messages">
                             {messages.map((msg, idx) => (
-                                <div key={idx} className="chat-message">
-                                    <strong>{msg.sender.username}:</strong> {msg.content}
+                                <div
+                                    key={idx}
+                                    className={`message ${msg.sender.id === currentUser?.id ? 'sent' : 'received'}`}
+                                >
+                                    <div className="message-content">
+                                        <p>{msg.content}</p>
+                                        <span className="message-time">
+                                            {new Date(msg.sentAt).toLocaleTimeString()}
+                                        </span>
+                                    </div>
                                 </div>
                             ))}
                         </div>
@@ -152,8 +187,15 @@ function MainChatPage() {
                                 placeholder="Type a message..."
                                 value={messageText}
                                 onChange={(e) => setMessageText(e.target.value)}
+                                onKeyPress={handleKeyPress}
                             />
-                            <button className="chat-send-button" onClick={sendMessage}>➤</button>
+                            <button
+                                className="chat-send-button"
+                                onClick={sendMessage}
+                                disabled={!messageText.trim()}
+                            >
+                                ➤
+                            </button>
                         </div>
                     </>
                 ) : (
