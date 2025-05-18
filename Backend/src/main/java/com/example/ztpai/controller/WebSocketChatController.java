@@ -13,24 +13,16 @@ public class WebSocketChatController {
 
     private final SimpMessagingTemplate messagingTemplate;
     private final MessageService messageService;
-    private final MessagesSender sender;
-    public WebSocketChatController(SimpMessagingTemplate messagingTemplate, MessageService messageService, MessagesSender sender) {
+    private final MessagesSender messagesSender;
+    public WebSocketChatController(SimpMessagingTemplate messagingTemplate, MessageService messageService, MessagesSender messagesSender) {
         this.messagingTemplate = messagingTemplate;
         this.messageService = messageService;
-        this.sender = sender;
+        this.messagesSender = messagesSender;
     }
 
     @MessageMapping("/chat")
     public void processMessage(@Payload MessageDTO messageDTO) {
-        messageService.AddMesage(
-            messageDTO.getContent(),
-            messageDTO.getSender().getId(),
-            messageDTO.getReceiver().getId()
-        );
-
-        sender.send();
-        String destination = "/queue/messages/" + messageDTO.getReceiver().getId();
-        messagingTemplate.convertAndSend(destination, messageDTO);
+        messagesSender.send(messageDTO);
     }
 }
 

@@ -1,4 +1,5 @@
 package com.example.ztpai.RabbitMQ;
+import com.example.ztpai.DTO.MessageDTO;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,9 +16,8 @@ public class MessagesSender {
         this.queue = queue;
     }
 
-    public void send(){
-        String message = "Hello RabbitMQ";
-        rabbitTemplate.convertAndSend(queue.getName(), message);
-        System.out.println("Sent message: " + message);
+    public void send(MessageDTO messageDTO) {
+        rabbitTemplate.convertAndSend(queue.getName(), messageDTO);
+        System.out.println("Sent message: " + messageDTO.getContent());
     }
 }

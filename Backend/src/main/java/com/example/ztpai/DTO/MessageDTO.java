@@ -1,5 +1,7 @@
 package com.example.ztpai.DTO;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import java.time.LocalDateTime;
 
 public class MessageDTO {
@@ -15,6 +17,9 @@ public class MessageDTO {
         this.receiver = receiver;
     }
 
+    public MessageDTO() {
+    }
+
     public String getContent() {
         return content;
     }
@@ -22,12 +27,26 @@ public class MessageDTO {
     public LocalDateTime getSentAt() {
         return sentAt;
     }
+    public void setSentAt(LocalDateTime sentAt) {
+        this.sentAt = sentAt;
+    }
 
     public UserDTO getSender() {
         return sender;
     }
 
+    public void setSender(UserDTO sender) {
+        this.sender = sender;
+    }
+
+    public void setReceiver(UserDTO receiver) {
+        this.receiver = receiver;
+    }
+
     public UserDTO getReceiver() {
         return receiver;
+    }
+    public void setContent(String content) {
+        this.content = content;
     }
 }
