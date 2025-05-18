@@ -1,6 +1,7 @@
 package com.example.ztpai.controller;
 
 import com.example.ztpai.DTO.MessageDTO;
+import com.example.ztpai.RabbitMQ.MessagesSender;
 import com.example.ztpai.service.MessageService;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -12,10 +13,11 @@ public class WebSocketChatController {
 
     private final SimpMessagingTemplate messagingTemplate;
     private final MessageService messageService;
-
-    public WebSocketChatController(SimpMessagingTemplate messagingTemplate, MessageService messageService) {
+    private final MessagesSender sender;
+    public WebSocketChatController(SimpMessagingTemplate messagingTemplate, MessageService messageService, MessagesSender sender) {
         this.messagingTemplate = messagingTemplate;
         this.messageService = messageService;
+        this.sender = sender;
     }
 
     @MessageMapping("/chat")
@@ -26,6 +28,7 @@ public class WebSocketChatController {
             messageDTO.getReceiver().getId()
         );
 
+        sender.send();
         String destination = "/queue/messages/" + messageDTO.getReceiver().getId();
         messagingTemplate.convertAndSend(destination, messageDTO);
     }
