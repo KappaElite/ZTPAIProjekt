@@ -46,4 +46,10 @@ public class FriendRequest {
     public void setReceiverId(Long receiverId) {
         this.receiverId = receiverId;
     }
+    public boolean isAccepted() {
+        return accepted;
+    }
+    public void setAccepted(boolean accepted) {
+        this.accepted = accepted;
+    }
 }

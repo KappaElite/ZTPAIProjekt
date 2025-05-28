@@ -25,29 +25,19 @@ public class FriendsService {
 
     public void AddFriend(Long userId, Long friendID) {
 
-        if(userId.equals(friendID)){
+        if (userId.equals(friendID)) {
             throw new FriendExceptions.AddingYourselfException("You can't add yourself");
         }
 
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new GlobalExceptions.UserNotFoundException("User not found"));
-        User friend = userRepository.findById(friendID)
-                .orElseThrow(() -> new FriendExceptions.FriendNotFoundException("Friend not found"));
-
-        if(userRepository.existsFriendship(userId, friendID)) {
+        if (userRepository.existsFriendship(userId, friendID)) {
             throw new FriendExceptions.FriendshipAlreadyExistsException("Friendship already exists");
         }
 
-        if(notificationRepository.existsRequest(userId, friendID)) {
+        if (notificationRepository.existsRequest(userId, friendID)) {
             //Potencjalnie mozna tu zmienic typ wyjaktu, nie jest to jednak wymagane
             throw new FriendExceptions.FriendshipAlreadyExistsException("Friendship request already exists");
         }
-        notificationRepository.save(new FriendRequest(userId,friendID));
-
-        //user.getFriends().add(friend);
-        //friend.getFriends().add(user);
-        //userRepository.save(user);
-        //userRepository.save(friend);
+        notificationRepository.save(new FriendRequest(userId, friendID));
     }
 
     public void RemoveFriend(Long userId, Long friendID) {
