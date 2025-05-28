@@ -3,7 +3,9 @@ package com.example.ztpai.service;
 import com.example.ztpai.DTO.FriendsDTO;
 import com.example.ztpai.exception.GlobalExceptions;
 import com.example.ztpai.exception.friend.FriendExceptions;
+import com.example.ztpai.model.FriendRequest;
 import com.example.ztpai.model.User;
+import com.example.ztpai.repository.NotificationRepository;
 import com.example.ztpai.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
@@ -14,9 +16,11 @@ import java.util.stream.Collectors;
 public class FriendsService {
 
     private final UserRepository userRepository;
+    private final NotificationRepository notificationRepository;
 
-    public FriendsService(UserRepository userRepository) {
+    public FriendsService(UserRepository userRepository, NotificationRepository notificationRepository) {
         this.userRepository = userRepository;
+        this.notificationRepository = notificationRepository;
     }
 
     public void AddFriend(Long userId, Long friendID) {
@@ -34,12 +38,16 @@ public class FriendsService {
             throw new FriendExceptions.FriendshipAlreadyExistsException("Friendship already exists");
         }
 
-        //Tutaj do poprawki w przyszlosci, User dodajac kogoos jest z automatu przyjety przez druga strone
-        //Ten sam problem bedzie z usuwaniem
-        user.getFriends().add(friend);
-        friend.getFriends().add(user);
-        userRepository.save(user);
-        userRepository.save(friend);
+        if(notificationRepository.existsRequest(userId, friendID)) {
+            //Potencjalnie mozna tu zmienic typ wyjaktu, nie jest to jednak wymagane
+            throw new FriendExceptions.FriendshipAlreadyExistsException("Friendship request already exists");
+        }
+        notificationRepository.save(new FriendRequest(userId,friendID));
+
+        //user.getFriends().add(friend);
+        //friend.getFriends().add(user);
+        //userRepository.save(user);
+        //userRepository.save(friend);
     }
 
     public void RemoveFriend(Long userId, Long friendID) {
