@@ -22,7 +22,7 @@ public class RequestController {
         return ResponseEntity.status(200).body(requestDTOS);
     }
 
-    @PostMapping("/accept/{user_id}/{friend_id")
+    @PostMapping("/accept/{user_id}/{friend_id}")
     public ResponseEntity<String> acceptRequest(@PathVariable Long user_id, @PathVariable Long friend_id) {
         requestService.acceptRequest(user_id, friend_id);
         return ResponseEntity.status(201).body("Successfully accepted request");
