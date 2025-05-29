@@ -1,30 +1,30 @@
 package com.example.ztpai.model;
 
-
 import jakarta.persistence.*;
 
 @Entity
 @Table(name = "requests")
 public class FriendRequest {
     @Id
-    @GeneratedValue(strategy= GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private Long senderId;
+    @ManyToOne
+    @JoinColumn(name = "sender_id", nullable = false)
+    private User sender;
 
-    @Column(nullable = false)
-    private Long receiverId;
+    @ManyToOne
+    @JoinColumn(name = "receiver_id", nullable = false)
+    private User receiver;
 
     @Column(nullable = false)
     private boolean accepted;
 
-
     public FriendRequest() {}
 
-    public FriendRequest(Long senderId, Long receiverId) {
-        this.senderId = senderId;
-        this.receiverId = receiverId;
+    public FriendRequest(User sender, User receiver) {
+        this.sender = sender;
+        this.receiver = receiver;
         this.accepted = false;
     }
 
@@ -34,17 +34,17 @@ public class FriendRequest {
     public void setId(Long id) {
         this.id = id;
     }
-    public Long getSenderId() {
-        return senderId;
+    public User getSender() {
+        return sender;
     }
-    public void setSenderId(Long senderId) {
-        this.senderId = senderId;
+    public void setSender(User sender) {
+        this.sender = sender;
     }
-    public Long getReceiverId() {
-        return receiverId;
+    public User getReceiver() {
+        return receiver;
     }
-    public void setReceiverId(Long receiverId) {
-        this.receiverId = receiverId;
+    public void setReceiver(User receiver) {
+        this.receiver = receiver;
     }
     public boolean isAccepted() {
         return accepted;

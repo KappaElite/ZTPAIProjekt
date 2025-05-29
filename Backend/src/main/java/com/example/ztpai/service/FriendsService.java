@@ -37,7 +37,13 @@ public class FriendsService {
             //Potencjalnie mozna tu zmienic typ wyjaktu, nie jest to jednak wymagane
             throw new FriendExceptions.FriendshipAlreadyExistsException("Friendship request already exists");
         }
-        notificationRepository.save(new FriendRequest(userId, friendID));
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new GlobalExceptions.UserNotFoundException("User not found"));
+        User friend = userRepository.findById(friendID)
+                .orElseThrow(() -> new GlobalExceptions.UserNotFoundException("Friend not found"));
+
+        notificationRepository.save(new FriendRequest(user, friend));
     }
 
     public void RemoveFriend(Long userId, Long friendID) {

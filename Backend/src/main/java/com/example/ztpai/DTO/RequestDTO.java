@@ -16,9 +16,10 @@ public class RequestDTO {
     }
 
     public RequestDTO(FriendRequest request, UserRepository userRepository) {
-        this.id = request.getReceiverId();
-        User receiver = userRepository.findById(request.getReceiverId())
+        User receiver = userRepository.findById(request.getReceiver().getId())
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        this.id = request.getReceiver().getId();
         this.username = receiver.getUsername();
     }
 
