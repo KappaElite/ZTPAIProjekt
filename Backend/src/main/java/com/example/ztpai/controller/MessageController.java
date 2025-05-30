@@ -39,4 +39,5 @@ public class MessageController {
         List<MessageDTO> messages = messageService.getMessagesBetween(sender_id, receiver_id);
         return ResponseEntity.ok(messages);
     }
+
 }

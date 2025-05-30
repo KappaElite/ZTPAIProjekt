@@ -1,5 +1,6 @@
 package com.example.ztpai.controller;
 
+import com.example.ztpai.DTO.GroupMessageDTO;
 import com.example.ztpai.DTO.MessageDTO;
 import com.example.ztpai.RabbitMQ.MessagesSender;
 import com.example.ztpai.service.MessageService;
@@ -23,6 +24,11 @@ public class WebSocketChatController {
     @MessageMapping("/chat")
     public void processMessage(@Payload MessageDTO messageDTO) {
         messagesSender.send(messageDTO);
+    }
+
+    @MessageMapping("/groupChat")
+    public void processGroupMessage(@Payload GroupMessageDTO groupMessageDTO) {
+        messagesSender.send(groupMessageDTO);
     }
 }
 

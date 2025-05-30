@@ -1,6 +1,7 @@
 package com.example.ztpai.RabbitMQ;
 
 
+import com.example.ztpai.DTO.GroupMessageDTO;
 import com.example.ztpai.DTO.MessageDTO;
 
 import org.springframework.stereotype.Service;
@@ -20,6 +21,15 @@ public class FilterService {
         }
         messageDTO.setContent(content);
         return messageDTO;
+    }
+
+    public GroupMessageDTO filter(GroupMessageDTO groupMessageDTO) {
+        String content = groupMessageDTO.getContent();
+        for (String word : badWords) {
+            content = content.replaceAll("(?i)\\b" + Pattern.quote(word) + "\\b", mask(word.length()));
+        }
+        groupMessageDTO.setContent(content);
+        return groupMessageDTO;
     }
 
     private String mask(int length) {

@@ -1,4 +1,5 @@
 package com.example.ztpai.RabbitMQ;
+import com.example.ztpai.DTO.GroupMessageDTO;
 import com.example.ztpai.DTO.MessageDTO;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -19,5 +20,10 @@ public class MessagesSender {
     public void send(MessageDTO messageDTO) {
         rabbitTemplate.convertAndSend(queue.getName(), messageDTO);
         System.out.println("Sent message: " + messageDTO.getContent());
+    }
+
+    public void send(GroupMessageDTO groupMessageDTO) {
+        rabbitTemplate.convertAndSend(queue.getName(), groupMessageDTO);
+        System.out.println("Sent group message: " + groupMessageDTO.getContent());
     }
 }

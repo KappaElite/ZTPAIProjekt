@@ -1,4 +1,5 @@
 package com.example.ztpai.RabbitMQ;
+import com.example.ztpai.DTO.GroupMessageDTO;
 import com.example.ztpai.DTO.MessageDTO;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.rabbit.annotation.RabbitHandler;
@@ -21,5 +22,10 @@ public class Filter {
     @RabbitHandler
     public void receive(MessageDTO messageDTO) {
         rabbitTemplate.convertAndSend("outgoing", filterService.filter(messageDTO));
+    }
+
+    @RabbitHandler
+    public void receive(GroupMessageDTO groupMessageDTO) {
+        rabbitTemplate.convertAndSend("outgoing", filterService.filter(groupMessageDTO));
     }
 }

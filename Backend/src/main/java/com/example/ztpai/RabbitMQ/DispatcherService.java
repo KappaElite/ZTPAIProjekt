@@ -1,6 +1,7 @@
 package com.example.ztpai.RabbitMQ;
 
 
+import com.example.ztpai.DTO.GroupMessageDTO;
 import com.example.ztpai.DTO.MessageDTO;
 import com.example.ztpai.service.MessageService;
 import org.springframework.stereotype.Service;
@@ -16,6 +17,12 @@ public class DispatcherService {
                 messageDTO.getContent(),
                 messageDTO.getSender().getId(),
                 messageDTO.getReceiver().getId()
+        );
+    }
+    public void handle(GroupMessageDTO groupMessageDTO) {
+        messageService.AddGroupMessage(
+                groupMessageDTO.getContent(),
+                groupMessageDTO.getSender().getId()
         );
     }
 }

@@ -1,5 +1,6 @@
 package com.example.ztpai.RabbitMQ;
 
+import com.example.ztpai.DTO.GroupMessageDTO;
 import com.example.ztpai.DTO.MessageDTO;
 import org.springframework.amqp.rabbit.annotation.RabbitHandler;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
@@ -22,5 +23,12 @@ public class Dispatcher {
         dispatcherService.handle(messageDTO);
         String destination = "/queue/messages/" + messageDTO.getReceiver().getId();
         messagingTemplate.convertAndSend(destination, messageDTO);
+    }
+
+    @RabbitHandler
+    public void receive(GroupMessageDTO groupMessageDTO) {
+        dispatcherService.handle(groupMessageDTO);
+        String destination = "/topic/";
+        messagingTemplate.convertAndSend(destination, groupMessageDTO);
     }
 }
