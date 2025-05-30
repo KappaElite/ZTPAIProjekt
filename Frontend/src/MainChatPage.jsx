@@ -14,6 +14,7 @@ function MainChatPage() {
     const [currentUser, setCurrentUser] = useState(null);
     const selectedFriendRef = useRef(null);
 
+
     useEffect(() => {
         selectedFriendRef.current = selectedFriend;
     }, [selectedFriend]);
@@ -43,7 +44,23 @@ function MainChatPage() {
     }, []);
 
     useEffect(() => {
-        if (selectedFriend && currentUser) {
+
+        if(selectedFriend === "GroupChat" && currentUser) {
+            const token = localStorage.getItem("token");
+            axios.get(`http://localhost:8080/api/chat/groupchat/get`, {
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+            })
+                .then((response) => {
+                    setMessages(response.data);
+                })
+                .catch((error) => {
+                    console.error("Error fetching group chat:", error);
+                });
+        }
+        else if (selectedFriend && currentUser) {
             const token = localStorage.getItem("token");
             axios.get(`http://localhost:8080/api/chat/get/${currentUser.id}/${selectedFriend.id}`, {
                 headers: {
@@ -59,6 +76,7 @@ function MainChatPage() {
                 });
         }
     }, [selectedFriend, currentUser]);
+
 
 
     useEffect(() => {
@@ -140,6 +158,11 @@ function MainChatPage() {
         setMessages([]);
     };
 
+    const handleGroupChatClick = () => {
+        setSelectedFriend("GroupChat");
+        setMessages([]);
+    }
+
     return (
         <div className="chat-container">
             <div className="sidebar">
@@ -155,6 +178,11 @@ function MainChatPage() {
                             <div className="friend-name">{friend.username}</div>
                         </div>
                     ))}
+                    <div className="friend-item" onClick={handleGroupChatClick}>
+                        <div className="friend-avatar"></div>
+                        <div className="friend-name">Group chat</div>
+                    </div>
+
                 </div>
             </div>
             <div className="chat-panel">
