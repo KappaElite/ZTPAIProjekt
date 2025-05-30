@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 @Table(name = "LiveChat")
 public class LiveChat {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne

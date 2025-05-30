@@ -28,7 +28,7 @@ public class Dispatcher {
     @RabbitHandler
     public void receive(GroupMessageDTO groupMessageDTO) {
         dispatcherService.handle(groupMessageDTO);
-        String destination = "/topic/";
+        String destination = "/topic/groupchat";
         messagingTemplate.convertAndSend(destination, groupMessageDTO);
     }
 }
