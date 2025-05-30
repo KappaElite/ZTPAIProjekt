@@ -100,7 +100,14 @@ function MainChatPage() {
             client.subscribe(`/queue/messages/${currentUser.id}`, (message) => {
                 const selected = selectedFriendRef.current;
                 const receivedMessage = JSON.parse(message.body);
-                if (selected && receivedMessage.sender.id == selected.id) {
+                if (selected && receivedMessage.sender.id === selected.id) {
+                    setMessages(prev => [...prev, receivedMessage]);
+                }
+            });
+
+            client.subscribe(`/topic/groupchat`, (message) => {
+                const receivedMessage = JSON.parse(message.body);
+                if (selectedFriendRef.current === "GroupChat") {
                     setMessages(prev => [...prev, receivedMessage]);
                 }
             });
@@ -123,27 +130,47 @@ function MainChatPage() {
     const sendMessage = () => {
         if (!messageText.trim() || !selectedFriend || !currentUser || !clientRef.current?.connected) return;
 
-        const messageDTO = {
-            content: messageText,
-            sentAt: new Date(),
-            sender: {
-                id: currentUser.id,
-                username: currentUser.username
-            },
-            receiver: {
-                id: selectedFriend.id,
-                username: selectedFriend.username
+
+        if( selectedFriend === "GroupChat" && currentUser) {
+            const groupMessageDTO  = {
+                content: messageText,
+                sender: {
+                    id: currentUser.id,
+                    username: currentUser.username
+                },
+                sentAt: new Date(),
             }
-        };
+            clientRef.current.publish({
+                destination: "/app/groupChat",
+                body: JSON.stringify(groupMessageDTO)
+            });
+            setMessages(prev => [...prev, groupMessageDTO]);
+            setMessageText("");
+        }
+        else{
+            const messageDTO = {
+                content: messageText,
+                sentAt: new Date(),
+                sender: {
+                    id: currentUser.id,
+                    username: currentUser.username
+                },
+                receiver: {
+                    id: selectedFriend.id,
+                    username: selectedFriend.username
+                }
+            };
 
-        clientRef.current.publish({
-            destination: "/app/chat",
-            body: JSON.stringify(messageDTO)
-        });
+            clientRef.current.publish({
+                destination: "/app/chat",
+                body: JSON.stringify(messageDTO)
+            });
 
 
-        setMessages(prev => [...prev, messageDTO]);
-        setMessageText("");
+            setMessages(prev => [...prev, messageDTO]);
+            setMessageText("");
+        }
+
     };
 
     const handleKeyPress = (e) => {
