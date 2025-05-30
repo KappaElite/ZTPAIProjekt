@@ -13,11 +13,11 @@ public interface NotificationRepository extends JpaRepository<FriendRequest, Lon
 
     @Query("SELECT CASE WHEN COUNT(fr) > 0 THEN true ELSE false END " +
             "FROM FriendRequest fr " +
-            "JOIN User u " +
+            "JOIN User u ON fr.sender.id = u.id " +
             "WHERE fr.sender.id = :senderId AND fr.receiver.id = :receiverId")
     boolean existsRequest(@Param("senderId") Long senderId, @Param("receiverId") Long receiverId);
 
-    @Query("SELECT fr FROM FriendRequest fr  JOIN User WHERE fr.receiver.id = :receiverId AND fr.accepted = false")
+    @Query("SELECT fr FROM FriendRequest fr  JOIN User u ON fr.receiver.id = u.id WHERE fr.receiver.id = :receiverId AND fr.accepted = false")
     List<FriendRequest> findByReceiverIdAndNotAccepted(@Param("receiverId") Long receiverId);
 
     Optional<FriendRequest> findByReceiverIdAndSenderId(Long receiverId, Long senderId);
