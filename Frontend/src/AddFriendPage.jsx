@@ -34,7 +34,23 @@ function AddFriendPage() {
     };
 
     const handleSendRequest = (friendId) => {
-        console.log(`Friend request sent to user with ID: ${friendId}`);
+        const token = localStorage.getItem("token");
+        const decoded = jwtDecode(token);
+        const userId = decoded.userID;
+        axios.post(`http://localhost:8080/api/friend/add/${userId}/${friendId}`, {},{
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+            }
+        })
+            .then(() => {
+                setAvailableFriends((prevFriends) =>
+                    prevFriends.filter((friend) => friend.id !== friendId)
+                );
+            })
+            .catch((error) => {
+                console.error("Error sending friend request:", error);
+            });
     };
 
     return (
