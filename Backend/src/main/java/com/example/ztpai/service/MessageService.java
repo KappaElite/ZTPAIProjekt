@@ -1,6 +1,7 @@
 package com.example.ztpai.service;
 
 
+import com.example.ztpai.DTO.GroupMessageDTO;
 import com.example.ztpai.DTO.MessageDTO;
 import com.example.ztpai.DTO.UserDTO;
 import com.example.ztpai.exception.GlobalExceptions;
@@ -73,6 +74,15 @@ public class MessageService {
                 message.getSentAt(),
                 new UserDTO(message.getSender().getId(), message.getSender().getUsername()),
                 new UserDTO(message.getReceiver().getId(), message.getReceiver().getUsername())
+        )).collect(Collectors.toList());
+    }
+
+    public List<GroupMessageDTO> getGroupMessages(){
+        List<LiveChat> groupMessages = groupMessageRepository.findAll();
+        return groupMessages.stream().map(groupMessage -> new GroupMessageDTO(
+                groupMessage.getContent(),
+                new UserDTO(groupMessage.getSender().getId(), groupMessage.getSender().getUsername()),
+                groupMessage.getSentAt()
         )).collect(Collectors.toList());
     }
 

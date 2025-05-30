@@ -1,6 +1,7 @@
 package com.example.ztpai.controller;
 
 
+import com.example.ztpai.DTO.GroupMessageDTO;
 import com.example.ztpai.DTO.MessageDTO;
 import com.example.ztpai.DTO.MessageRequest;
 import com.example.ztpai.model.Message;
@@ -40,4 +41,9 @@ public class MessageController {
         return ResponseEntity.ok(messages);
     }
 
+    @GetMapping("/groupchat/get")
+    public ResponseEntity<List<GroupMessageDTO>>  getGroupMessages() {
+        List<GroupMessageDTO> groupMessages = messageService.getGroupMessages();
+        return ResponseEntity.ok(groupMessages);
+    }
 }
