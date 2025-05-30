@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { jwtDecode } from "jwt-decode";
 import { Client } from '@stomp/stompjs';
+import { useNavigate} from "react-router-dom";
 import SockJS from 'sockjs-client';
 import axios from "axios";
 import "./MainChatPage.css";
@@ -13,6 +14,7 @@ function MainChatPage() {
     const clientRef = useRef(null);
     const [currentUser, setCurrentUser] = useState(null);
     const selectedFriendRef = useRef(null);
+    const navigate = useNavigate();
 
 
     useEffect(() => {
@@ -190,6 +192,10 @@ function MainChatPage() {
         setMessages([]);
     }
 
+    const handleAddFriendClick = () => {
+        navigate('/add-friend');
+    }
+
     return (
         <div className="chat-container">
             <div className="sidebar">
@@ -211,6 +217,9 @@ function MainChatPage() {
                     </div>
 
                 </div>
+                <button className="add-friend-button" onClick={handleAddFriendClick}>
+                    Add Friend
+                </button>
             </div>
             <div className="chat-panel">
                 {selectedFriend ? (

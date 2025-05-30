@@ -4,6 +4,7 @@ import Login from './LoginPage';
 import Register from './RegisterPage';
 import TestPage from './TestPage';
 import MainChatPage from "./MainChatPage";
+import AddFriendPage from "./AddFriendPage";
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
             <Route path="/register" element={<Register />} />
             <Route path="/test" element={<TestPage />} />
             <Route path="/chat" element={<MainChatPage />} />
+            <Route path="/add-friend" element={<AddFriendPage />} />
 
         </Routes>
       </Router>

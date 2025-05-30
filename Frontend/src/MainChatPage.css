@@ -178,3 +178,22 @@
     font-size: 52px;
     align-self: center;
 }
+
+
+.add-friend-button {
+    margin-top: 20px;
+    padding: 10px 15px;
+    background: rgba(0, 123, 255, 0.8);
+    color: white;
+    border: none;
+    border-radius: 15px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.3s;
+    text-align: center;
+}
+
+.add-friend-button:hover {
+    background: rgba(0, 123, 255, 1);
+}
