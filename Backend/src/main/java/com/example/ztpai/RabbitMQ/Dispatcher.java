@@ -22,7 +22,9 @@ public class Dispatcher {
     public void receive(MessageDTO messageDTO) {
         dispatcherService.handle(messageDTO);
         String destination = "/queue/messages/" + messageDTO.getReceiver().getId();
+        String destination2 = "/queue/messages/" + messageDTO.getSender().getId();
         messagingTemplate.convertAndSend(destination, messageDTO);
+        messagingTemplate.convertAndSend(destination2, messageDTO);
     }
 
     @RabbitHandler
