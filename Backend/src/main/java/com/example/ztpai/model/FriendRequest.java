@@ -20,12 +20,16 @@ public class FriendRequest {
     @Column(nullable = false)
     private boolean accepted;
 
+    @Column(nullable = false)
+    private boolean rejected;
+
     public FriendRequest() {}
 
     public FriendRequest(User sender, User receiver) {
         this.sender = sender;
         this.receiver = receiver;
         this.accepted = false;
+        this.rejected = false;
     }
 
     public Long getId() {
@@ -51,5 +55,11 @@ public class FriendRequest {
     }
     public void setAccepted(boolean accepted) {
         this.accepted = accepted;
+    }
+    public boolean isRejected() {
+        return rejected;
+    }
+    public void setRejected(boolean rejected) {
+        this.rejected = rejected;
     }
 }

@@ -44,12 +44,25 @@ public class RequestService {
             //Wyjatek do dodania
             throw new FriendExceptions.FriendshipAlreadyExistsException("Friendship already accepted");
         }
-
         friendRequest.setAccepted(true);
         user.getFriends().add(friend);
         friend.getFriends().add(user);
         userRepository.save(user);
         userRepository.save(friend);
+        notificationRepository.save(friendRequest);
+    }
+    public void rejectRequest(Long userId, Long friendId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new GlobalExceptions.UserNotFoundException("User not found"));
+        User friend = userRepository.findById(friendId)
+                .orElseThrow(() -> new FriendExceptions.FriendNotFoundException("Friend not found"));
+        FriendRequest friendRequest = notificationRepository.findByReceiverIdAndSenderId(userId, friendId)
+                .orElseThrow(() -> new FriendExceptions.FriendshipAlreadyExistsException("Friendship not found"));
+
+        if(friendRequest.isRejected()){
+            throw new FriendExceptions.FriendshipAlreadyExistsException("Friendship already rejected");
+        }
+        friendRequest.setRejected(true);
         notificationRepository.save(friendRequest);
     }
 }

@@ -17,7 +17,7 @@ public interface NotificationRepository extends JpaRepository<FriendRequest, Lon
             "WHERE fr.sender.id = :senderId AND fr.receiver.id = :receiverId")
     boolean existsRequest(@Param("senderId") Long senderId, @Param("receiverId") Long receiverId);
 
-    @Query("SELECT fr FROM FriendRequest fr  JOIN User u ON fr.receiver.id = u.id WHERE fr.receiver.id = :receiverId AND fr.accepted = false")
+    @Query("SELECT fr FROM FriendRequest fr  JOIN User u ON fr.receiver.id = u.id WHERE fr.receiver.id = :receiverId AND fr.accepted = false AND fr.rejected = false")
     List<FriendRequest> findByReceiverIdAndNotAccepted(@Param("receiverId") Long receiverId);
 
     Optional<FriendRequest> findByReceiverIdAndSenderId(Long receiverId, Long senderId);

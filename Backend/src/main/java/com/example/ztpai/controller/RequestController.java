@@ -28,5 +28,11 @@ public class RequestController {
         return ResponseEntity.status(201).body("Successfully accepted request");
     }
 
+    @PostMapping("/reject/{user_id}/{friend_id}")
+    public ResponseEntity<String> rejectRequest(@PathVariable Long user_id, @PathVariable Long friend_id) {
+        requestService.rejectRequest(user_id, friend_id);
+        return ResponseEntity.status(201).body("Successfully rejected request");
+    }
+
 
 }
