@@ -220,6 +220,9 @@ function MainChatPage() {
                 <button className="add-friend-button" onClick={handleAddFriendClick}>
                     Add Friend
                 </button>
+                <button className="add-friend-button" onClick={() => navigate('/notification')}>
+                    Notifications
+                </button>
             </div>
             <div className="chat-panel">
                 {selectedFriend ? (
