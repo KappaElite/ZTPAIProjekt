@@ -67,7 +67,7 @@ public class MessageService {
             throw new GlobalExceptions.UserNotFoundException("User not found");
         }
 
-        List<Message> messages = messageRepository.findBySenderIdAndReceiverIdOrReceiverIdAndSenderId(senderId, receiverId, senderId, receiverId);
+        List<Message> messages = messageRepository.findBySenderIdAndReceiverIdOrReceiverIdAndSenderIdOrderBySentAtAsc(senderId, receiverId, senderId, receiverId);
 
         return messages.stream().map(message -> new MessageDTO(
                 message.getContent(),
