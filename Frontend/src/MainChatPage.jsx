@@ -102,7 +102,7 @@ function MainChatPage() {
             client.subscribe(`/queue/messages/${currentUser.id}`, (message) => {
                 const selected = selectedFriendRef.current;
                 const receivedMessage = JSON.parse(message.body);
-                if (selected && receivedMessage.sender.id === selected.id) {
+                if (selected && (receivedMessage.sender.id === selected.id || receivedMessage.receiver.id === selected.id)) {
                     setMessages(prev => [...prev, receivedMessage]);
                 }
             });
@@ -146,7 +146,6 @@ function MainChatPage() {
                 destination: "/app/groupChat",
                 body: JSON.stringify(groupMessageDTO)
             });
-            setMessages(prev => [...prev, groupMessageDTO]);
             setMessageText("");
         }
         else{
@@ -169,7 +168,7 @@ function MainChatPage() {
             });
 
 
-            setMessages(prev => [...prev, messageDTO]);
+
             setMessageText("");
         }
 
@@ -239,9 +238,12 @@ function MainChatPage() {
                                     className={`message ${msg.sender.id === currentUser?.id ? 'sent' : 'received'}`}
                                 >
                                     <div className="message-content">
-                                        <p>{msg.content}</p>
+                                        <p>
+                                            <strong>{msg.sender.username}: </strong>
+                                            {msg.content}
+                                        </p>
                                         <span className="message-time">
-                                            {new Date(msg.sentAt).toLocaleTimeString()}
+                                            {new Date(msg.sentAt).toLocaleString('pl-PL', { dateStyle: 'short', timeStyle: 'short' })}
                                         </span>
                                     </div>
                                 </div>
