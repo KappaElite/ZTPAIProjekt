@@ -15,6 +15,19 @@ function MainChatPage() {
     const [currentUser, setCurrentUser] = useState(null);
     const selectedFriendRef = useRef(null);
     const navigate = useNavigate();
+    const containerRef = useRef(null);
+
+
+    useEffect( () => {
+        if(containerRef.current && containerRef){
+            const element = containerRef.current;
+            element.scroll({
+                behavior: "smooth",
+                left:0,
+                top:element.scrollHeight
+            })
+        }
+    }, [messages]);
 
 
     useEffect(() => {
@@ -231,20 +244,18 @@ function MainChatPage() {
                                 {selectedFriend.username}
                             </div>
                         </div>
-                        <div className="chat-messages">
+                        <div  ref={containerRef} className="chat-messages">
                             {messages.map((msg, idx) => (
                                 <div
                                     key={idx}
                                     className={`message ${msg.sender.id === currentUser?.id ? 'sent' : 'received'}`}
                                 >
-                                    <div className="message-content">
-                                        <p>
-                                            <strong>{msg.sender.username}: </strong>
-                                            {msg.content}
-                                        </p>
-                                        <span className="message-time">
-                                            {new Date(msg.sentAt).toLocaleString('pl-PL', { dateStyle: 'short', timeStyle: 'short' })}
-                                        </span>
+                                    <div className="message-sender">{msg.sender.username}</div>
+                                    <div className="message-date">
+                                        {new Date(msg.sentAt).toLocaleString('pl-PL', { dateStyle: 'short', timeStyle: 'short' })}
+                                    </div>
+                                    <div className="message-bubble">
+                                        {msg.content}
                                     </div>
                                 </div>
                             ))}
