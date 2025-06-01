@@ -196,6 +196,7 @@ function MainChatPage() {
 
     const handleFriendClick = (friend) => {
         setSelectedFriend(friend);
+
         setMessages([]);
     };
 
@@ -213,21 +214,28 @@ function MainChatPage() {
             <div className="sidebar">
                 <div className="sidebar-header">Messages</div>
                 <div className="friend-list">
-                    {friends.map((friend) => (
-                        <div
-                            key={friend.id}
-                            className={`friend-item ${selectedFriend?.id === friend.id ? 'selected' : ''}`}
-                            onClick={() => handleFriendClick(friend)}
-                        >
-                            <div className="friend-avatar"></div>
-                            <div className="friend-name">{friend.username}</div>
-                        </div>
-                    ))}
-                    <div className="friend-item" onClick={handleGroupChatClick}>
+                    {friends.map((friend) => {
+                        const isSelected = selectedFriend?.id === friend.id;
+                        return (
+                            <div
+                                key={friend.id}
+                                className={`friend-item ${isSelected ? 'selected' : ''}`}
+                                onClick={!isSelected ? () => handleFriendClick(friend) : undefined}
+                                style={{ cursor: isSelected ? 'default' : 'pointer' }}
+                            >
+                                <div className="friend-avatar"></div>
+                                <div className="friend-name">{friend.username}</div>
+                            </div>
+                        );
+                    })}
+                    <div
+                        className={`friend-item ${selectedFriend === "GroupChat" ? 'selected' : ''}`}
+                        onClick={selectedFriend !== "GroupChat" ? handleGroupChatClick : undefined}
+                        style={{ cursor: selectedFriend === "GroupChat" ? 'default' : 'pointer' }}
+                    >
                         <div className="friend-avatar"></div>
                         <div className="friend-name">Group chat</div>
                     </div>
-
                 </div>
                 <button className="add-friend-button" onClick={handleAddFriendClick}>
                     Add Friend
@@ -241,7 +249,7 @@ function MainChatPage() {
                     <>
                         <div className="chat-header">
                             <div className="chat-header-title">
-                                {selectedFriend.username}
+                                {selectedFriend === "GroupChat" ? "Group Chat" : selectedFriend.username}
                             </div>
                         </div>
                         <div  ref={containerRef} className="chat-messages">
