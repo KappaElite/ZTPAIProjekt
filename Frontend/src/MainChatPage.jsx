@@ -223,7 +223,6 @@ function MainChatPage() {
                                 onClick={!isSelected ? () => handleFriendClick(friend) : undefined}
                                 style={{ cursor: isSelected ? 'default' : 'pointer' }}
                             >
-                                <div className="friend-avatar"></div>
                                 <div className="friend-name">{friend.username}</div>
                             </div>
                         );
@@ -233,7 +232,6 @@ function MainChatPage() {
                         onClick={selectedFriend !== "GroupChat" ? handleGroupChatClick : undefined}
                         style={{ cursor: selectedFriend === "GroupChat" ? 'default' : 'pointer' }}
                     >
-                        <div className="friend-avatar"></div>
                         <div className="friend-name">Group chat</div>
                     </div>
                 </div>
