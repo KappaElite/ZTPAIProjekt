@@ -17,7 +17,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
     boolean existsFriendship(@Param("userId") Long userId, @Param("friendId") Long friendId);
 
     @Query("SELECT u FROM User u WHERE u.id <> :userID and u.id NOT IN" +
-    "(Select fr.receiver.id FROM FriendRequest fr WHERE fr.sender.id = :userID)")
+    "(Select fr.receiver.id FROM FriendRequest fr WHERE fr.sender.id = :userID)" +
+            "and u.id not in (select f.id from User user join user.friends f where user.id = :userID)")
     List<User> findAllUsersExceptCurrentAndFriends(@Param("userID") Long userID);
 
 }
