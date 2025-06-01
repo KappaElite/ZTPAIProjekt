@@ -4,6 +4,8 @@ import { Client } from '@stomp/stompjs';
 import { useNavigate} from "react-router-dom";
 import SockJS from 'sockjs-client';
 import axios from "axios";
+import deleteIcon from "./assets/delete.png";
+
 import "./MainChatPage.css";
 
 function MainChatPage() {
@@ -209,6 +211,32 @@ function MainChatPage() {
         navigate('/add-friend');
     }
 
+    const handleRemoveFriendClick = (friendToRemove) => {
+        const token = localStorage.getItem("token");
+        const decoded = jwtDecode(token);
+        const userID = decoded.userID;
+
+        axios.delete(`http://localhost:8080/api/friend/delete/${userID}/${friendToRemove.id}`, {
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+            },
+        })
+        .then(() => {
+            setFriends(prevFriends =>
+                prevFriends.filter(friend => friend.id !== friendToRemove.id)
+            );
+
+            if (selectedFriend?.id === friendToRemove.id) {
+                setSelectedFriend(null);
+                setMessages([]);
+            }
+        })
+        .catch((error) => {
+            console.error("Error deleting friend", error);
+        })
+    }
+
     return (
         <div className="chat-container">
             <div className="sidebar">
@@ -224,6 +252,14 @@ function MainChatPage() {
                                 style={{ cursor: isSelected ? 'default' : 'pointer' }}
                             >
                                 <div className="friend-name">{friend.username}</div>
+                                <button className="delete-friend-button" style={{ background: 'none', border: 'none', padding: 0, marginLeft: '10px' }}
+                                onClick={(e) =>{
+                                    e.stopPropagation();
+                                    handleRemoveFriendClick(friend)
+                                }}>
+                                    <img src={deleteIcon} alt="Delete" style={{ width: '18px', height: '18px' }} />
+
+                                </button>
                             </div>
                         );
                     })}
@@ -295,3 +331,6 @@ function MainChatPage() {
 }
 
 export default MainChatPage;
+
+
+
