@@ -155,9 +155,6 @@ function MainChatPage() {
             connectHeaders: {
                 Authorization: `Bearer ${token}`,
             },
-            debug: (str) => {
-                console.log('STOMP: ' + str);
-            },
         });
 
         client.onConnect = () => {

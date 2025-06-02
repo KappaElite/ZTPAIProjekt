@@ -19,11 +19,9 @@ public class MessagesSender {
 
     public void send(MessageDTO messageDTO) {
         rabbitTemplate.convertAndSend(queue.getName(), messageDTO);
-        System.out.println("Sent message: " + messageDTO.getContent());
     }
 
     public void send(GroupMessageDTO groupMessageDTO) {
         rabbitTemplate.convertAndSend(queue.getName(), groupMessageDTO);
-        System.out.println("Sent group message: " + groupMessageDTO.getContent());
     }
 }
