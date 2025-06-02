@@ -1,6 +1,8 @@
 package com.example.ztpai.controller;
 
+import com.example.ztpai.DTO.JWTResponse;
 import com.example.ztpai.DTO.LoginRequest;
+import com.example.ztpai.model.RefreshToken;
 import com.example.ztpai.model.User;
 import com.example.ztpai.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -23,10 +25,13 @@ public class LoginController {
 
     @PostMapping("/login")
     @Operation(summary = "Logging")
-    public ResponseEntity login( @Valid @RequestBody LoginRequest request) {
-        String token = authService.login(request.getUsername(), request.getPassword());
-        Map<String, String> response = new HashMap<>();
-        response.put("token", token);
-        return ResponseEntity.ok(response);
+    public ResponseEntity <JWTResponse> login(@Valid @RequestBody LoginRequest request) {
+        return ResponseEntity.ok(authService.login(request.getUsername(), request.getPassword()));
+    }
+
+    @PostMapping("/refresh/{userID}")
+    public ResponseEntity<String> refresh(@Valid String refreshToken, @PathVariable Long userID) {
+        String newToken = authService.refreshToken(refreshToken, userID);
+        return ResponseEntity.ok(newToken);
     }
 }

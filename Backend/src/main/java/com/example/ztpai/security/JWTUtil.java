@@ -20,12 +20,23 @@ public class JWTUtil {
                 .claim("role",role)
                 .claim("userID",userID)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60))
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60))
                 .signWith(SECRET_KEY, SignatureAlgorithm.HS512)
                 .compact();
             return tmp;
 
 
+    }
+
+    public String generateRefreshToken(String username, Long userID) {
+        String tmp = Jwts.builder()
+                .setSubject(username)
+                .claim("useID",userID)
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + 1000L * 60 * 60 * 24))
+                .signWith(SECRET_KEY,SignatureAlgorithm.HS512)
+                .compact();
+        return tmp;
     }
 
     public String extractUsername(String token) {
