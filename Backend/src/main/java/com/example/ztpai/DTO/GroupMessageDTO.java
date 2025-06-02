@@ -1,10 +1,17 @@
 package com.example.ztpai.DTO;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDateTime;
 
+@Schema(description = "Group message data transfer object")
 public class GroupMessageDTO {
+    @Schema(description = "Content of the message", example = "Hello everyone!")
     private String content;
+
+    @Schema(description = "User who sent the message")
     private UserDTO sender;
+
+    @Schema(description = "Date and time when message was sent", example = "2023-06-02T14:30:00")
     private LocalDateTime sentAt;
 
     public GroupMessageDTO() {}

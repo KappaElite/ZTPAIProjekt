@@ -1,9 +1,14 @@
 package com.example.ztpai.DTO;
 
-public class JWTResponse {
-    private String token;
-    private String refreshToken;
+import io.swagger.v3.oas.annotations.media.Schema;
 
+@Schema(description = "JWT authentication token response")
+public class JWTResponse {
+    @Schema(description = "JWT access token for authentication", example = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...")
+    private String token;
+
+    @Schema(description = "JWT refresh token for obtaining new access tokens", example = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...")
+    private String refreshToken;
 
     public JWTResponse(String token, String JWTToken) {
         this.token = token;
