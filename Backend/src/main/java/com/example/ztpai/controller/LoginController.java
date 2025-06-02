@@ -30,8 +30,11 @@ public class LoginController {
     }
 
     @PostMapping("/refresh/{userID}")
-    public ResponseEntity<String> refresh(@Valid String refreshToken, @PathVariable Long userID) {
+    public ResponseEntity<JWTResponse> refresh(@RequestBody Map<String, String> request, @PathVariable Long userID) {
+        String refreshToken = request.get("token");
         String newToken = authService.refreshToken(refreshToken, userID);
-        return ResponseEntity.ok(newToken);
+
+        JWTResponse jwtResponse = new JWTResponse(newToken, refreshToken);
+        return ResponseEntity.ok(jwtResponse);
     }
 }

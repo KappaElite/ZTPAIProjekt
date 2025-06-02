@@ -31,7 +31,7 @@ public class JWTUtil {
     public String generateRefreshToken(String username, Long userID) {
         String tmp = Jwts.builder()
                 .setSubject(username)
-                .claim("useID",userID)
+                .claim("userID",userID)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + 1000L * 60 * 60 * 24))
                 .signWith(SECRET_KEY,SignatureAlgorithm.HS512)
