@@ -34,7 +34,6 @@ public class FriendsService {
         }
 
         if (notificationRepository.existsRequest(userId, friendID)) {
-            //Potencjalnie mozna tu zmienic typ wyjaktu, nie jest to jednak wymagane
             throw new FriendExceptions.FriendshipAlreadyExistsException("Friendship request already exists");
         }
 

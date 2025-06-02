@@ -3,7 +3,9 @@ package com.example.ztpai.exception;
 import com.example.ztpai.exception.auth.LoginExceptions;
 import com.example.ztpai.exception.auth.RegisterExceptions;
 import com.example.ztpai.exception.friend.FriendExceptions;
+import com.example.ztpai.exception.friendNotifications.FriendNotificationsExceptions;
 import com.example.ztpai.exception.message.MessageExceptions;
+import com.example.ztpai.exception.token.TokenExceptions;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -19,7 +21,26 @@ public class GlobalExceptionHandler {
     public ResponseEntity<?> handleUserNotFound(GlobalExceptions.UserNotFoundException ex) {
         return buildResponse(ex.getMessage(), 404);
     }
-
+    @ExceptionHandler(TokenExceptions.RefreshTokenNotFound.class)
+    public ResponseEntity<?> handleRefreshTokenNotFound(TokenExceptions.RefreshTokenNotFound ex) {
+        return buildResponse(ex.getMessage(), 404);
+    }
+    @ExceptionHandler(FriendNotificationsExceptions.RequestNotFound.class)
+    public ResponseEntity<?> handleRequestNotFound(FriendNotificationsExceptions.RequestNotFound ex) {
+        return buildResponse(ex.getMessage(), 404);
+    }
+    @ExceptionHandler(FriendNotificationsExceptions.RequestAlreadyExists.class)
+    public ResponseEntity<?> handleRequestAlreadyExists(FriendNotificationsExceptions.RequestAlreadyExists ex) {
+        return buildResponse(ex.getMessage(), 409);
+    }
+    @ExceptionHandler(FriendNotificationsExceptions.RequestAlreadyAccepted.class)
+    public ResponseEntity<?> handleRequestAlreadyAccepted(FriendNotificationsExceptions.RequestAlreadyAccepted ex) {
+        return buildResponse(ex.getMessage(), 409);
+    }
+    @ExceptionHandler(FriendNotificationsExceptions.RequestAlreadyRejected.class)
+    public ResponseEntity<?> handleRequestAlreadyRejected(FriendNotificationsExceptions.RequestAlreadyRejected ex) {
+        return buildResponse(ex.getMessage(), 409);
+    }
 
     @ExceptionHandler(LoginExceptions.WrongPasswordException.class)
     public ResponseEntity<?> handleWrongPassword(LoginExceptions.WrongPasswordException ex) {

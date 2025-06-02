@@ -6,4 +6,5 @@ public class GlobalExceptions {
             super(message);
         }
     }
+
 }

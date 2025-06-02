@@ -3,6 +3,7 @@ package com.example.ztpai.service;
 import com.example.ztpai.DTO.RequestDTO;
 import com.example.ztpai.exception.GlobalExceptions;
 import com.example.ztpai.exception.friend.FriendExceptions;
+import com.example.ztpai.exception.friendNotifications.FriendNotificationsExceptions;
 import com.example.ztpai.model.FriendRequest;
 import com.example.ztpai.model.User;
 import com.example.ztpai.repository.NotificationRepository;
@@ -37,12 +38,10 @@ public class RequestService {
         User friend = userRepository.findById(friendId)
                 .orElseThrow(() -> new FriendExceptions.FriendNotFoundException("Friend not found"));
         FriendRequest friendRequest = notificationRepository.findByReceiverIdAndSenderId(userId, friendId)
-                //Potencjlany wyjatek do dodania
-                .orElseThrow(() -> new FriendExceptions.FriendshipAlreadyExistsException("Friendship not found"));
+                .orElseThrow(() -> new FriendNotificationsExceptions.RequestNotFound("Friend request not found"));
 
         if(friendRequest.isAccepted()){
-            //Wyjatek do dodania
-            throw new FriendExceptions.FriendshipAlreadyExistsException("Friendship already accepted");
+            throw new FriendNotificationsExceptions.RequestAlreadyAccepted("Friend request already accepted");
         }
         friendRequest.setAccepted(true);
         user.getFriends().add(friend);
@@ -57,10 +56,10 @@ public class RequestService {
         User friend = userRepository.findById(friendId)
                 .orElseThrow(() -> new FriendExceptions.FriendNotFoundException("Friend not found"));
         FriendRequest friendRequest = notificationRepository.findByReceiverIdAndSenderId(userId, friendId)
-                .orElseThrow(() -> new FriendExceptions.FriendshipAlreadyExistsException("Friendship not found"));
+                .orElseThrow(() -> new FriendNotificationsExceptions.RequestNotFound("Friend request not found"));
 
         if(friendRequest.isRejected()){
-            throw new FriendExceptions.FriendshipAlreadyExistsException("Friendship already rejected");
+            throw new FriendNotificationsExceptions.RequestAlreadyRejected("Friend request already accepted");
         }
         friendRequest.setRejected(true);
         notificationRepository.save(friendRequest);

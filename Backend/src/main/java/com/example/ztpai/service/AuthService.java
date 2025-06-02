@@ -5,6 +5,7 @@ import com.example.ztpai.exception.GlobalExceptionHandler;
 import com.example.ztpai.exception.GlobalExceptions;
 import com.example.ztpai.exception.auth.LoginExceptions;
 import com.example.ztpai.exception.auth.RegisterExceptions;
+import com.example.ztpai.exception.token.TokenExceptions;
 import com.example.ztpai.model.RefreshToken;
 import com.example.ztpai.repository.RefreshTokenRepository;
 import com.example.ztpai.repository.UserRepository;
@@ -75,12 +76,12 @@ public class AuthService {
         User user = userRepository.findById(userID)
                 .orElseThrow(() -> new GlobalExceptions.UserNotFoundException("User not found"));
         RefreshToken refreshToken = refreshTokenRepository.findByUser(user)
-                .orElseThrow(() -> new GlobalExceptions.UserNotFoundException("Refresh token not found"));
+                .orElseThrow(() -> new TokenExceptions.RefreshTokenNotFound("Refresh token not found"));
         if(refreshToken.getToken().equals(token)){
             return jwtUtil.generateToken(user.getUsername(),user.getRole(),user.getId());
         }
         else{
-            throw new GlobalExceptions.UserNotFoundException("Refresh token not found");
+            throw new TokenExceptions.RefreshTokenNotFound("Refresh token not found");
         }
     }
 
