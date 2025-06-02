@@ -6,6 +6,7 @@ import TestPage from './TestPage';
 import MainChatPage from "./MainChatPage";
 import AddFriendPage from "./AddFriendPage";
 import NotificationPage from "./NotificationPage";
+import AdminPanelPage from "./AdminPanelPage";
 
 function App() {
   return (
@@ -18,10 +19,11 @@ function App() {
             <Route path="/chat" element={<MainChatPage />} />
             <Route path="/add-friend" element={<AddFriendPage />} />
             <Route path="/notification" element={<NotificationPage />} />
-
+            <Route path="/admin" element={<AdminPanelPage />} />
         </Routes>
       </Router>
   );
 }
 
 export default App;
+

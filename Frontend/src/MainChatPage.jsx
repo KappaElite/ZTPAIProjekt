@@ -329,6 +329,11 @@ function MainChatPage() {
                 <button className="add-friend-button" onClick={() => navigate('/notification')}>
                     Notifications
                 </button>
+                {role==='ADMIN' && (
+                    <button className="add-friend-button" onClick={()=> navigate('/admin')} >
+                        Admin Panel
+                    </button>
+                )}
             </div>
             <div className="chat-panel">
                 {selectedFriend ? (
