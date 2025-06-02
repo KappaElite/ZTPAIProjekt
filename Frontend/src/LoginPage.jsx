@@ -28,6 +28,13 @@ function LoginPage() {
                 password: credentials.password
             });
 
+            if(response.data.refreshToken){
+                localStorage.setItem('refreshToken', response.data.refreshToken);
+            }
+            else{
+                setError('Missing refresh token');
+            }
+
             if (response.data.token) {
                 localStorage.setItem('token', response.data.token);
                 navigate('/chat');

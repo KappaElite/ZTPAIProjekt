@@ -5,8 +5,55 @@ import { useNavigate} from "react-router-dom";
 import SockJS from 'sockjs-client';
 import axios from "axios";
 import deleteIcon from "./assets/delete.png";
-
 import "./MainChatPage.css";
+
+
+export const fetchWithAuthRetry = async (axiosConfig, navigate) => {
+    const token = localStorage.getItem("token");
+
+    try {
+        const response = await axios({
+            ...axiosConfig,
+            headers: {
+                ...(axiosConfig.headers || {}),
+                Authorization: `Bearer ${token}`,
+            },
+        });
+        return response;
+    } catch (error) {
+        if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+            try {
+                const refreshToken = localStorage.getItem("refreshToken");
+                const decoded = jwtDecode(refreshToken);
+                const userID = decoded.userID;
+
+                const refreshResponse = await axios.post(`http://localhost:8080/api/auth/refresh/${userID}`, {
+                    token: refreshToken,
+                });
+
+                const newToken = refreshResponse.data.token;
+                localStorage.setItem("token", newToken);
+
+                const retryResponse = await axios({
+                    ...axiosConfig,
+                    headers: {
+                        ...(axiosConfig.headers || {}),
+                        Authorization: `Bearer ${newToken}`,
+                    },
+                });
+
+                return retryResponse;
+
+            } catch (refreshError) {
+                console.error("Token refresh failed", refreshError);
+                localStorage.clear();
+                navigate("/login");
+            }
+        } else {
+            throw error;
+        }
+    }
+};
 
 function MainChatPage() {
     const [friends, setFriends] = useState([]);
@@ -18,6 +65,8 @@ function MainChatPage() {
     const selectedFriendRef = useRef(null);
     const navigate = useNavigate();
     const containerRef = useRef(null);
+
+
 
 
     useEffect( () => {
@@ -45,13 +94,13 @@ function MainChatPage() {
             username: decoded.sub
         });
 
-
-        axios.get(`http://localhost:8080/api/friend/get/${decoded.userID}`, {
+        fetchWithAuthRetry({
+            url: `http://localhost:8080/api/friend/get/${decoded.userID}`,
+            method: "GET",
             headers: {
                 "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
             },
-        })
+        }, navigate)
             .then((response) => {
                 setFriends(response.data);
             })
@@ -61,30 +110,28 @@ function MainChatPage() {
     }, []);
 
     useEffect(() => {
-
-        if(selectedFriend === "GroupChat" && currentUser) {
-            const token = localStorage.getItem("token");
-            axios.get(`http://localhost:8080/api/chat/groupchat/get`, {
+        if (selectedFriend === "GroupChat" && currentUser) {
+            fetchWithAuthRetry({
+                url: `http://localhost:8080/api/chat/groupchat/get`,
+                method: "GET",
                 headers: {
                     "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`,
                 },
-            })
+            }, navigate)
                 .then((response) => {
                     setMessages(response.data);
                 })
                 .catch((error) => {
                     console.error("Error fetching group chat:", error);
                 });
-        }
-        else if (selectedFriend && currentUser) {
-            const token = localStorage.getItem("token");
-            axios.get(`http://localhost:8080/api/chat/get/${currentUser.id}/${selectedFriend.id}`, {
+        } else if (selectedFriend && currentUser) {
+            fetchWithAuthRetry({
+                url: `http://localhost:8080/api/chat/get/${currentUser.id}/${selectedFriend.id}`,
+                method: "GET",
                 headers: {
                     "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`,
                 },
-            })
+            }, navigate)
                 .then((response) => {
                     setMessages(response.data);
                 })
@@ -216,26 +263,27 @@ function MainChatPage() {
         const decoded = jwtDecode(token);
         const userID = decoded.userID;
 
-        axios.delete(`http://localhost:8080/api/friend/delete/${userID}/${friendToRemove.id}`, {
+        fetchWithAuthRetry({
+            url: `http://localhost:8080/api/friend/delete/${userID}/${friendToRemove.id}`,
+            method: "DELETE",
             headers: {
                 "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
             },
-        })
-        .then(() => {
-            setFriends(prevFriends =>
-                prevFriends.filter(friend => friend.id !== friendToRemove.id)
-            );
+        }, navigate)
+            .then(() => {
+                setFriends(prevFriends =>
+                    prevFriends.filter(friend => friend.id !== friendToRemove.id)
+                );
 
-            if (selectedFriend?.id === friendToRemove.id) {
-                setSelectedFriend(null);
-                setMessages([]);
-            }
-        })
-        .catch((error) => {
-            console.error("Error deleting friend", error);
-        })
-    }
+                if (selectedFriend?.id === friendToRemove.id) {
+                    setSelectedFriend(null);
+                    setMessages([]);
+                }
+            })
+            .catch((error) => {
+                console.error("Error deleting friend", error);
+            });
+    };
 
     return (
         <div className="chat-container">
