@@ -4,6 +4,53 @@ import "./NotificationPage.css";
 import React, {useEffect,useState} from "react";
 import axios from "axios";
 
+export const fetchWithAuthRetry = async (axiosConfig, navigate) => {
+    const token = localStorage.getItem("token");
+
+    try {
+        const response = await axios({
+            ...axiosConfig,
+            headers: {
+                ...(axiosConfig.headers || {}),
+                Authorization: `Bearer ${token}`,
+            },
+        });
+        return response;
+    } catch (error) {
+        if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+            try {
+                const refreshToken = localStorage.getItem("refreshToken");
+                const decoded = jwtDecode(refreshToken);
+                const userID = decoded.userID;
+
+                const refreshResponse = await axios.post(`http://localhost:8080/api/auth/refresh/${userID}`, {
+                    token: refreshToken,
+                });
+
+                const newToken = refreshResponse.data.token;
+                localStorage.setItem("token", newToken);
+
+                const retryResponse = await axios({
+                    ...axiosConfig,
+                    headers: {
+                        ...(axiosConfig.headers || {}),
+                        Authorization: `Bearer ${newToken}`,
+                    },
+                });
+
+                return retryResponse;
+
+            } catch (refreshError) {
+                console.error("Token refresh failed", refreshError);
+                localStorage.clear();
+                navigate("/login");
+            }
+        } else {
+            throw error;
+        }
+    }
+};
+
 function NotificationPage() {
     const navigate = useNavigate();
     const [notifications, setNotifications] = useState([]);
@@ -13,13 +60,13 @@ function NotificationPage() {
         const decoded = jwtDecode(token);
         const userID = decoded.userID;
 
-        axios.get(`http://localhost:8080/api/request/get/${userID}`, {
+        fetchWithAuthRetry({
+            url: `http://localhost:8080/api/request/get/${userID}`,
+            method: "GET",
             headers: {
                 "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
             },
-        }
-        )
+        }, navigate)
             .then((response) => {
                 setNotifications(response.data);
             })
@@ -27,7 +74,7 @@ function NotificationPage() {
                 console.error("Error fetching notifications:", error);
             });
 
-    }, []);
+    }, [navigate]);
 
     const handleBackClick = () => {
         navigate("/chat");
@@ -38,22 +85,21 @@ function NotificationPage() {
         const decoded = jwtDecode(token);
         const userID = decoded.userID;
         const friendID = notification.id;
-        console.log("UserID: " + userID)
-        console.log("FriendID: " + friendID);
 
-        axios.post(`http://localhost:8080/api/request/accept/${userID}/${friendID}`, {},{
+        fetchWithAuthRetry({
+            url: `http://localhost:8080/api/request/accept/${userID}/${friendID}`,
+            method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
             },
-        })
+        }, navigate)
         .then(() => {
             setNotifications((prevState)=>
                 prevState.filter((notification) => notification.id !== friendID)
             );
         })
         .catch((error) => {
-            console.error("Error fetching notification:", error);
+            console.error("Error accepting request:", error);
         })
     }
 
@@ -63,19 +109,20 @@ function NotificationPage() {
         const userID = decoded.userID;
         const friendID = notification.id;
 
-        axios.post(`http://localhost:8080/api/request/reject/${userID}/${friendID}`, {},{
+        fetchWithAuthRetry({
+            url: `http://localhost:8080/api/request/reject/${userID}/${friendID}`,
+            method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
             },
-        })
+        }, navigate)
         .then(() => {
             setNotifications((prevState)=>
             prevState.filter((notification) => notification.id !== friendID)
             );
         })
         .catch((error) => {
-            console.error("Error fetching notification:", error);
+            console.error("Error rejecting request:", error);
         })
     }
 
@@ -110,3 +157,4 @@ function NotificationPage() {
 }
 
 export default NotificationPage;
+

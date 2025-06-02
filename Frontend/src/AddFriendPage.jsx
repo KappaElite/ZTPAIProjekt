@@ -4,6 +4,53 @@ import "./AddFriendPage.css";
 import { jwtDecode } from "jwt-decode";
 import axios from "axios";
 
+export const fetchWithAuthRetry = async (axiosConfig, navigate) => {
+    const token = localStorage.getItem("token");
+
+    try {
+        const response = await axios({
+            ...axiosConfig,
+            headers: {
+                ...(axiosConfig.headers || {}),
+                Authorization: `Bearer ${token}`,
+            },
+        });
+        return response;
+    } catch (error) {
+        if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+            try {
+                const refreshToken = localStorage.getItem("refreshToken");
+                const decoded = jwtDecode(refreshToken);
+                const userID = decoded.userID;
+
+                const refreshResponse = await axios.post(`http://localhost:8080/api/auth/refresh/${userID}`, {
+                    token: refreshToken,
+                });
+
+                const newToken = refreshResponse.data.token;
+                localStorage.setItem("token", newToken);
+
+                const retryResponse = await axios({
+                    ...axiosConfig,
+                    headers: {
+                        ...(axiosConfig.headers || {}),
+                        Authorization: `Bearer ${newToken}`,
+                    },
+                });
+
+                return retryResponse;
+
+            } catch (refreshError) {
+                console.error("Token refresh failed", refreshError);
+                localStorage.clear();
+                navigate("/login");
+            }
+        } else {
+            throw error;
+        }
+    }
+};
+
 function AddFriendPage() {
     const navigate = useNavigate();
 
@@ -14,12 +61,13 @@ function AddFriendPage() {
         const decoded = jwtDecode(token);
         const userId = decoded.userID;
 
-        axios.get(`http://localhost:8080/api/userlist/get/${userId}`, {
+        fetchWithAuthRetry({
+            url: `http://localhost:8080/api/userlist/get/${userId}`,
+            method: "GET",
             headers: {
                 "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
             },
-        })
+        }, navigate)
             .then((response) => {
                 setAvailableFriends(response.data);
             })
@@ -27,7 +75,7 @@ function AddFriendPage() {
                 console.error("Error fetching available friends:", error);
             });
 
-    }, []);
+    }, [navigate]);
 
     const handleBackClick = () => {
         navigate("/chat");
@@ -37,12 +85,14 @@ function AddFriendPage() {
         const token = localStorage.getItem("token");
         const decoded = jwtDecode(token);
         const userId = decoded.userID;
-        axios.post(`http://localhost:8080/api/friend/add/${userId}/${friendId}`, {},{
+
+        fetchWithAuthRetry({
+            url: `http://localhost:8080/api/friend/add/${userId}/${friendId}`,
+            method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
-            }
-        })
+            },
+        }, navigate)
             .then(() => {
                 setAvailableFriends((prevFriends) =>
                     prevFriends.filter((friend) => friend.id !== friendId)
@@ -84,3 +134,4 @@ function AddFriendPage() {
 }
 
 export default AddFriendPage;
+
