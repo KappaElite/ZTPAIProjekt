@@ -17,6 +17,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -69,11 +70,13 @@ public class MessageController {
     }
 
     @GetMapping("/groupchat/get")
-    @Operation(summary = "Get group chat messages", description = "Retrieves all messages from group chats")
+    @Operation(summary = "Get group chat messages", description = "Retrieves all messages from group chats. Only accessible to SUPERUSER role.")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Successfully retrieved group messages",
-            content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = GroupMessageDTO.class))))
+            content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = GroupMessageDTO.class)))),
+        @ApiResponse(responseCode = "403", description = "Access denied - requires SUPERUSER role")
     })
+    @PreAuthorize("hasAuthority('SUPERUSER')")
     public ResponseEntity<List<GroupMessageDTO>> getGroupMessages() {
         List<GroupMessageDTO> groupMessages = messageService.getGroupMessages();
         return ResponseEntity.ok(groupMessages);

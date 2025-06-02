@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 
 @Controller
@@ -32,6 +33,7 @@ public class WebSocketChatController {
     }
 
     @MessageMapping("/groupChat")
+    @PreAuthorize("hasAuthority('SUPERUSER')")
     @Operation(summary = "Process group chat message",
                description = "WebSocket endpoint for processing and distributing messages in group chats")
     public void processGroupMessage(@Payload GroupMessageDTO groupMessageDTO) {
