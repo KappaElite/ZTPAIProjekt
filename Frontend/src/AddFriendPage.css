@@ -139,3 +139,94 @@
     transform: translateY(1px);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
+
+
+@media (max-width: 1024px) {
+    .sidebar {
+        width: 35%;
+        padding: 15px;
+    }
+
+    .sidebar-header {
+        font-size: 22px;
+    }
+
+    .add-friend-button {
+        padding: 10px;
+        font-size: 15px;
+    }
+
+    .friend-item {
+        padding: 10px;
+    }
+}
+
+@media (max-width: 768px) {
+    .chat-container {
+        flex-direction: column;
+    }
+
+    .sidebar {
+        width: 100%;
+        height: auto;
+        max-height: 30vh;
+        order: 2;
+        padding: 10px;
+    }
+
+    .chat-panel {
+        order: 1;
+        height: 70vh;
+        padding: 15px;
+    }
+
+    .friend-list {
+        max-height: calc(70vh - 140px);
+        overflow-y: auto;
+    }
+
+    .friend-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px;
+    }
+
+    .friend-name {
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .sidebar-header {
+        font-size: 18px;
+    }
+
+    .chat-header-title {
+        font-size: 18px;
+    }
+
+    .add-friend-button {
+        padding: 8px;
+        font-size: 14px;
+    }
+
+    .friend-item {
+        padding: 8px;
+        margin-bottom: 6px;
+    }
+
+
+    .friend-item .add-friend-button {
+        padding: 5px 8px !important;
+        font-size: 12px !important;
+        min-width: 80px !important;
+        margin-left: 5px !important;
+    }
+
+
+    .friend-name {
+        font-size: 14px;
+        max-width: 55%;
+    }
+}

@@ -349,3 +349,157 @@
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
 }
 
+
+@media (max-width: 1024px) {
+    .sidebar {
+        width: 35%;
+        padding: 15px;
+    }
+
+    .sidebar-header {
+        font-size: 24px;
+        margin-bottom: 15px;
+    }
+
+    .friend-item {
+        padding: 10px;
+        margin-bottom: 8px;
+    }
+}
+
+@media (max-width: 768px) {
+    .chat-container {
+        flex-direction: column;
+        height: 100vh;
+    }
+
+    .sidebar {
+        width: 100%;
+        height: auto;
+        min-height: auto;
+        max-height: 45vh;
+        order: 2;
+        padding: 10px;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .sidebar-header {
+        font-size: 20px;
+        padding: 5px 0;
+        margin-bottom: 5px;
+    }
+
+    .friend-list {
+        min-height: auto;
+        max-height: 25vh;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 5px;
+    }
+
+    .chat-panel {
+        order: 1;
+        height: 55vh;
+        min-height: 200px;
+    }
+
+    .chat-messages {
+        max-height: calc(55vh - 120px);
+    }
+
+    .sidebar .button-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+        margin-top: 5px;
+    }
+
+    .friend-item {
+        margin-bottom: 5px;
+        min-height: 40px;
+        padding: 6px 10px;
+    }
+
+    .sidebar .add-friend-button,
+    .chat-container .sidebar .add-friend-button,
+    button.add-friend-button {
+        width: 100% !important;
+        margin: 3px 0 !important;
+        padding: 8px !important;
+        background-color: rgba(30, 58, 95, 0.7) !important;
+        color: white !important;
+        border: 1px solid rgba(255, 255, 255, 0.5) !important;
+        border-radius: 10px !important;
+        text-align: center !important;
+        font-size: 14px !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        white-space: nowrap !important;
+        box-sizing: border-box !important;
+        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3) !important;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7) !important;
+        transition: background-color 0.2s !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .sidebar-header {
+        font-size: 18px;
+    }
+
+    .friend-list {
+        margin-top: 5px;
+        margin-bottom: 3px;
+        max-height: 20vh;
+    }
+
+    .friend-item {
+        margin-bottom: 4px;
+        padding: 6px 8px;
+        min-height: 36px;
+    }
+
+    .message-item {
+        padding: 6px 10px;
+        margin-bottom: 6px;
+        font-size: 14px;
+    }
+
+    .message-input button {
+        padding: 8px;
+    }
+
+    .chat-header-title {
+        font-size: 18px;
+    }
+
+    .buttons-container button {
+        padding: 8px;
+        margin: 0 2px;
+        font-size: 14px;
+    }
+
+    .friend-name {
+        font-size: 15px;
+    }
+
+    .add-friend-button {
+        padding: 6px !important;
+        font-size: 13px !important;
+        margin: 2px 0 !important;
+        background-color: rgba(30, 58, 95, 0.7) !important;
+    }
+
+    .sidebar .add-friend-button,
+    .chat-container .sidebar .add-friend-button,
+    button.add-friend-button {
+        padding: 6px !important;
+        font-size: 13px !important;
+        margin: 2px 0 !important;
+        background-color: rgba(30, 58, 95, 0.7) !important;
+    }
+}
+
