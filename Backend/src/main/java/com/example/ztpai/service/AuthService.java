@@ -54,13 +54,13 @@ public class AuthService {
             throw new RegisterExceptions.EmailTakenException("Email already in use");
         }
         String hashedPassword = passwordEncoder.encode(password);
-        //Na razie domyslnie dodaje uzytkowanika o roli USER, na przyszlosc trzeba dodac inne
+
         User user;
         if(username.equals("admin")){
             user = new User(username,hashedPassword,email,"ADMIN");
         }
         else{
-            user = new User(username,hashedPassword,email,"USER");
+            user = new User(username,hashedPassword,email,"SUPERUSER");
         }
 
         userRepository.save(user);

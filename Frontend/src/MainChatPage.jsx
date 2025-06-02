@@ -65,7 +65,9 @@ function MainChatPage() {
     const selectedFriendRef = useRef(null);
     const navigate = useNavigate();
     const containerRef = useRef(null);
-
+    const userToken = localStorage.getItem("token");
+    const decodedToken = jwtDecode(userToken);
+    const role = decodedToken.role;
 
 
 
@@ -311,13 +313,15 @@ function MainChatPage() {
                             </div>
                         );
                     })}
-                    <div
+                    {role==='SUPERUSER' && (
+                        <div
                         className={`friend-item ${selectedFriend === "GroupChat" ? 'selected' : ''}`}
                         onClick={selectedFriend !== "GroupChat" ? handleGroupChatClick : undefined}
                         style={{ cursor: selectedFriend === "GroupChat" ? 'default' : 'pointer' }}
                     >
                         <div className="friend-name">Group chat</div>
                     </div>
+                        )}
                 </div>
                 <button className="add-friend-button" onClick={handleAddFriendClick}>
                     Add Friend
