@@ -8,6 +8,7 @@ import com.example.ztpai.model.FriendRequest;
 import com.example.ztpai.model.User;
 import com.example.ztpai.repository.NotificationRepository;
 import com.example.ztpai.repository.UserRepository;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,10 +17,12 @@ import java.util.List;
 public class RequestService {
     private final NotificationRepository notificationRepository;
     private final UserRepository userRepository;
+    private final SimpMessagingTemplate messagingTemplate;
 
-    public RequestService(NotificationRepository notificationRepository, UserRepository userRepository) {
+    public RequestService(NotificationRepository notificationRepository, UserRepository userRepository, SimpMessagingTemplate messagingTemplate) {
         this.notificationRepository = notificationRepository;
         this.userRepository = userRepository;
+        this.messagingTemplate = messagingTemplate;
     }
 
     public List<RequestDTO> getRequest(Long userId) {
@@ -49,6 +52,9 @@ public class RequestService {
         userRepository.save(user);
         userRepository.save(friend);
         notificationRepository.save(friendRequest);
+        String destination = "/topic/friends";
+        messagingTemplate.convertAndSend(destination, "FriendChange");
+
     }
     public void rejectRequest(Long userId, Long friendId) {
         User user = userRepository.findById(userId)

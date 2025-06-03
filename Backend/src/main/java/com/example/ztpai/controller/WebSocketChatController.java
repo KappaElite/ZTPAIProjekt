@@ -33,7 +33,7 @@ public class WebSocketChatController {
     }
 
     @MessageMapping("/groupChat")
-    @PreAuthorize("hasAuthority('SUPERUSER')")
+    //@PreAuthorize("hasAuthority('SUPERUSER')")
     @Operation(summary = "Process group chat message",
                description = "WebSocket endpoint for processing and distributing messages in group chats")
     public void processGroupMessage(@Payload GroupMessageDTO groupMessageDTO) {

@@ -174,6 +174,29 @@ function MainChatPage() {
                     setMessages(prev => [...prev, receivedMessage]);
                 }
             });
+
+            client.subscribe(`/topic/friends`, (message) => {
+                const token = localStorage.getItem("token");
+                const decoded = jwtDecode(token);
+                setCurrentUser({
+                    id: decoded.userID,
+                    username: decoded.sub
+                });
+
+                fetchWithAuthRetry({
+                    url: `http://localhost:8080/api/friend/get/${decoded.userID}`,
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                }, navigate)
+                    .then((response) => {
+                        setFriends(response.data);
+                    })
+                    .catch((error) => {
+                        console.error("Error fetching friends:", error);
+                    });
+            })
         };
 
         client.onStompError = (frame) => {
