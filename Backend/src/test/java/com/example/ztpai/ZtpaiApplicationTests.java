@@ -11,10 +11,9 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.*;
 import org.springframework.test.context.ActiveProfiles;
-import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -34,6 +33,10 @@ class ZtpaiApplicationTests {
     private UserRepository userRepository;
 
     private static String authToken;
+    private static String refreshToken;
+    private static Long testUserId;
+    private static Long friendUserId;
+    private static Long requestUserId;
 
 
     @Test
@@ -63,6 +66,7 @@ class ZtpaiApplicationTests {
         User user = userRepository.findByUsername("testuser").orElse(null);
         assertNotNull(user);
         assertEquals("test@example.com", user.getEmail());
+        testUserId = user.getId();
     }
 
     @Test
@@ -89,6 +93,7 @@ class ZtpaiApplicationTests {
 
 
         authToken = (String) response.getBody().get("token");
+        refreshToken = (String) response.getBody().get("refreshToken");
     }
 
     private HttpHeaders createJsonHeaders() {
@@ -97,12 +102,18 @@ class ZtpaiApplicationTests {
         return headers;
     }
 
+    private HttpHeaders createAuthHeaders() {
+        HttpHeaders headers = createJsonHeaders();
+        headers.setBearerAuth(authToken);
+        return headers;
+    }
+
     @Test
     @Order(3)
     @Transactional
     void testAddFriend() {
 
-        restTemplate.postForEntity(
+        ResponseEntity<String> response = restTemplate.postForEntity(
                 "/api/auth/register",
                 new HttpEntity<>("""
                 {
@@ -114,15 +125,14 @@ class ZtpaiApplicationTests {
                 String.class
         );
 
-
         User testUser = userRepository.findByUsername("testuser").orElseThrow();
         User friendUser = userRepository.findByUsername("frienduser").orElseThrow();
+        friendUserId = friendUser.getId();
+
+        HttpHeaders headers = createAuthHeaders();
 
 
-        HttpHeaders headers = createJsonHeaders();
-        headers.setBearerAuth(authToken);
-
-        ResponseEntity<String> response = restTemplate.exchange(
+        ResponseEntity<String> addResponse = restTemplate.exchange(
                 "/api/friend/add/{user_id}/{friend_id}",
                 HttpMethod.POST,
                 new HttpEntity<>(headers),
@@ -131,9 +141,20 @@ class ZtpaiApplicationTests {
                 friendUser.getId()
         );
 
+        assertEquals(HttpStatus.CREATED, addResponse.getStatusCode());
+        assertEquals("Successfully add friend", addResponse.getBody());
 
-        assertEquals(HttpStatus.CREATED, response.getStatusCode());
-        assertEquals("Successfully add friend", response.getBody());
+
+        ResponseEntity<String> acceptResponse = restTemplate.exchange(
+                "/api/request/accept/{user_id}/{friend_id}",
+                HttpMethod.POST,
+                new HttpEntity<>(headers),
+                String.class,
+                friendUser.getId(),
+                testUser.getId()
+        );
+
+        assertEquals(HttpStatus.CREATED, acceptResponse.getStatusCode());
 
 
         User updatedUser = userRepository.findById(testUser.getId()).orElseThrow();
@@ -145,8 +166,7 @@ class ZtpaiApplicationTests {
     void testGetFriends() {
         User testUser = userRepository.findByUsername("testuser").orElseThrow();
 
-        HttpHeaders headers = createJsonHeaders();
-        headers.setBearerAuth(authToken);
+        HttpHeaders headers = createAuthHeaders();
 
         ResponseEntity<List> response = restTemplate.exchange(
                 "/api/friend/get/{user_id}",
@@ -166,8 +186,7 @@ class ZtpaiApplicationTests {
         User testUser = userRepository.findByUsername("testuser").orElseThrow();
         User friendUser = userRepository.findByUsername("frienduser").orElseThrow();
 
-        HttpHeaders headers = createJsonHeaders();
-        headers.setBearerAuth(authToken);
+        HttpHeaders headers = createAuthHeaders();
 
         String requestBody = """
         {
@@ -194,8 +213,7 @@ class ZtpaiApplicationTests {
         User testUser = userRepository.findByUsername("testuser").orElseThrow();
         User friendUser = userRepository.findByUsername("frienduser").orElseThrow();
 
-        HttpHeaders headers = createJsonHeaders();
-        headers.setBearerAuth(authToken);
+        HttpHeaders headers = createAuthHeaders();
 
         ResponseEntity<List> response = restTemplate.exchange(
                 "/api/chat/get/{sender_id}/{receiver_id}",
@@ -215,8 +233,7 @@ class ZtpaiApplicationTests {
     void testAddFriendToYourself() {
         User testUser = userRepository.findByUsername("testuser").orElseThrow();
 
-        HttpHeaders headers = createJsonHeaders();
-        headers.setBearerAuth(authToken);
+        HttpHeaders headers = createAuthHeaders();
 
         ResponseEntity<Map> response = restTemplate.exchange(
                 "/api/friend/add/{user_id}/{friend_id}",
@@ -237,8 +254,7 @@ class ZtpaiApplicationTests {
         User testUser = userRepository.findByUsername("testuser").orElseThrow();
         User friendUser = userRepository.findByUsername("frienduser").orElseThrow();
 
-        HttpHeaders headers = createJsonHeaders();
-        headers.setBearerAuth(authToken);
+        HttpHeaders headers = createAuthHeaders();
 
         String requestBody = """
         {
@@ -258,5 +274,227 @@ class ZtpaiApplicationTests {
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         assertEquals("Message cannot be empty", response.getBody().get("message"));
     }
-}
 
+    @Test
+    @Order(9)
+    void testRegisterDuplicateUsername() {
+        String requestBody = """
+        {
+            "username": "testuser",
+            "password": "testpass",
+            "email": "different@example.com"
+        }
+        """;
+
+        ResponseEntity<Map> response = restTemplate.postForEntity(
+                "/api/auth/register",
+                new HttpEntity<>(requestBody, createJsonHeaders()),
+                Map.class
+        );
+
+        assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
+
+    }
+
+    @Test
+    @Order(10)
+    void testRegisterUserForRequest() {
+        String requestBody = """
+        {
+            "username": "requestuser",
+            "password": "requestpass",
+            "email": "request@example.com"
+        }
+        """;
+
+        ResponseEntity<String> response = restTemplate.postForEntity(
+                "/api/auth/register",
+                new HttpEntity<>(requestBody, createJsonHeaders()),
+                String.class
+        );
+
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+
+        User requestUser = userRepository.findByUsername("requestuser").orElse(null);
+        assertNotNull(requestUser);
+        requestUserId = requestUser.getId();
+    }
+
+    @Test
+    @Order(11)
+    void testSendFriendRequest() {
+        HttpHeaders headers = createAuthHeaders();
+
+        ResponseEntity<String> response = restTemplate.exchange(
+                "/api/friend/add/{user_id}/{friend_id}",
+                HttpMethod.POST,
+                new HttpEntity<>(headers),
+                String.class,
+                requestUserId,
+                testUserId
+        );
+
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        assertEquals("Successfully add friend", response.getBody());
+    }
+
+    @Test
+    @Order(12)
+    void testGetPendingRequests() {
+        HttpHeaders headers = createAuthHeaders();
+
+        ResponseEntity<List> response = restTemplate.exchange(
+                "/api/request/get/{user_id}",
+                HttpMethod.GET,
+                new HttpEntity<>(headers),
+                List.class,
+                testUserId
+        );
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertTrue(response.getBody().size() > 0);
+    }
+
+    @Test
+    @Order(13)
+    void testAcceptFriendRequest() {
+        HttpHeaders headers = createAuthHeaders();
+
+        ResponseEntity<String> response = restTemplate.exchange(
+                "/api/request/accept/{user_id}/{friend_id}",
+                HttpMethod.POST,
+                new HttpEntity<>(headers),
+                String.class,
+                testUserId,
+                requestUserId
+        );
+
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        assertEquals("Successfully accepted request", response.getBody());
+    }
+
+    @Test
+    @Order(14)
+    void testRemoveFriend() {
+        HttpHeaders headers = createAuthHeaders();
+
+        ResponseEntity<String> response = restTemplate.exchange(
+                "/api/friend/delete/{user_id}/{friend_id}",
+                HttpMethod.DELETE,
+                new HttpEntity<>(headers),
+                String.class,
+                testUserId,
+                friendUserId
+        );
+
+
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+
+
+        ResponseEntity<List> friendsResponse = restTemplate.exchange(
+                "/api/friend/get/{user_id}",
+                HttpMethod.GET,
+                new HttpEntity<>(headers),
+                List.class,
+                testUserId
+        );
+
+        List<Map<String, Object>> friendsList = friendsResponse.getBody();
+        boolean friendRemoved = true;
+        for (Map<String, Object> friend : friendsList) {
+            if (friendUserId.equals(Long.valueOf(friend.get("id").toString()))) {
+                friendRemoved = false;
+                break;
+            }
+        }
+        assertTrue(friendRemoved, "Friend should have been removed from friends list");
+    }
+
+    @Test
+    @Order(15)
+    void testGetUserList() {
+        HttpHeaders headers = createAuthHeaders();
+
+        ResponseEntity<List> response = restTemplate.exchange(
+                "/api/userlist/get/{user_id}",
+                HttpMethod.GET,
+                new HttpEntity<>(headers),
+                List.class,
+                testUserId
+        );
+
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+    }
+
+    @Test
+    @Order(16)
+    void testRejectFriendRequest() {
+
+        HttpHeaders headers = createAuthHeaders();
+
+
+        restTemplate.exchange(
+                "/api/friend/add/{user_id}/{friend_id}",
+                HttpMethod.POST,
+                new HttpEntity<>(headers),
+                String.class,
+                requestUserId,
+                testUserId
+        );
+
+
+        ResponseEntity<String> response = restTemplate.exchange(
+                "/api/request/reject/{user_id}/{friend_id}",
+                HttpMethod.POST,
+                new HttpEntity<>(headers),
+                String.class,
+                testUserId,
+                requestUserId
+        );
+
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        assertEquals("Successfully rejected request", response.getBody());
+    }
+
+    @Test
+    @Order(17)
+    void testTokenRefresh() {
+        Map<String, String> requestBody = new HashMap<>();
+        requestBody.put("token", refreshToken);
+
+        HttpHeaders headers = createJsonHeaders();
+        headers.setBearerAuth(authToken);
+
+        ResponseEntity<Map> response = restTemplate.exchange(
+                "/api/auth/refresh/{userID}",
+                HttpMethod.POST,
+                new HttpEntity<>(requestBody, headers),
+                Map.class,
+                testUserId
+        );
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody().get("token"));
+
+
+    }
+
+    @Test
+    @Order(18)
+    void testHealthEndpoint() {
+
+        HttpHeaders headers = createAuthHeaders();
+
+        ResponseEntity<String> response = restTemplate.exchange(
+                "/api/hello",
+                HttpMethod.GET,
+                new HttpEntity<>(headers),
+                String.class
+        );
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals("Hello, World!", response.getBody());
+    }
+}
