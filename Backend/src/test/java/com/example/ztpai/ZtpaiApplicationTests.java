@@ -57,7 +57,7 @@ class ZtpaiApplicationTests {
 
 
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
-        assertEquals("Register succes", response.getBody());
+        assertEquals("Register success", response.getBody());
 
 
         User user = userRepository.findByUsername("testuser").orElse(null);

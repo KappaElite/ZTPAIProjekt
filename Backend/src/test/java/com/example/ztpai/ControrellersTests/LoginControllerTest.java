@@ -1,5 +1,6 @@
 package com.example.ztpai.ControrellersTests;
 
+import com.example.ztpai.DTO.JWTResponse;
 import com.example.ztpai.controller.LoginController;
 import com.example.ztpai.exception.GlobalExceptions;
 import com.example.ztpai.exception.auth.LoginExceptions;
@@ -43,6 +44,7 @@ public class LoginControllerTest {
     private final String invalidUsername = "nonExistingUser";
     private final String invalidPassword = "wrongPassword";
     private final String validToken = "valid.jwt.token";
+    private final String validRefreshToken = "valid.refresh.token";
 
     @Nested
     @DisplayName("POST /api/auth/login Positive scenarios")
@@ -53,11 +55,12 @@ public class LoginControllerTest {
             User mockUser = new User();
             mockUser.setUsername(validUsername);
             mockUser.setPassword("$2a$10$hashedPassword");
-            when(authService.login(validUsername, validPassword)).thenReturn(validToken);
+            when(authService.login(validUsername, validPassword))
+                .thenReturn(new JWTResponse(validToken, validRefreshToken));
         }
 
         @Test
-        @DisplayName("201 - proper login with JWT return")
+        @DisplayName("200 - proper login with JWT return")
         void proper_login() throws Exception {
             String requestBody = String.format("{\"username\":\"%s\",\"password\":\"%s\"}",
                     validUsername, validPassword);
@@ -92,7 +95,7 @@ public class LoginControllerTest {
         }
 
         @Test
-        @DisplayName("401 - incorrect password")
+        @DisplayName("401 - wrong password")
         void incorrect_password_login() throws Exception {
             User mockUser = new User();
             mockUser.setUsername(validUsername);
@@ -111,39 +114,66 @@ public class LoginControllerTest {
                     .andExpect(jsonPath("$.message").value("Wrong password"))
                     .andExpect(jsonPath("$.status").value(401));
         }
+    }
+
+    @Nested
+    @DisplayName("POST /api/auth/login Validation scenarios")
+    class ValidationScenarios {
 
         @Test
-        @DisplayName("400 - missing username")
-        void no_username_login() throws Exception {
-
-            String invalidRequestBody = "{\"password\":\"somePassword\"}";
+        @DisplayName("400 - Empty username")
+        void empty_username_login() throws Exception {
+            String requestBody = "{\"username\":\"\",\"password\":\"testPassword\"}";
 
             mockMvc.perform(post("/api/auth/login")
                             .contentType(MediaType.APPLICATION_JSON)
-                            .content(invalidRequestBody))
-                            .andExpect(status().isBadRequest());
+                            .content(requestBody))
+                    .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        @DisplayName("400 - Empty password")
+        void empty_password_login() throws Exception {
+            String requestBody = "{\"username\":\"testUser\",\"password\":\"\"}";
+
+            mockMvc.perform(post("/api/auth/login")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(requestBody))
+                    .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        @DisplayName("400 - Missing username")
+        void missing_username_login() throws Exception {
+            String requestBody = "{\"password\":\"testPassword\"}";
+
+            mockMvc.perform(post("/api/auth/login")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(requestBody))
+                    .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        @DisplayName("400 - Missing password")
+        void missing_password_login() throws Exception {
+            String requestBody = "{\"username\":\"testUser\"}";
+
+            mockMvc.perform(post("/api/auth/login")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(requestBody))
+                    .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        @DisplayName("400 - Invalid JSON")
+        void invalid_json_login() throws Exception {
+            String requestBody = "{\"username\":\"testUser\",\"password\":}";
+
+            mockMvc.perform(post("/api/auth/login")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(requestBody))
+                    .andExpect(status().isBadRequest());
         }
     }
-
-    @Test
-    @DisplayName("400 - empty username")
-    void empty_username_login() throws Exception {
-        String requestBody = "{\"username\":\"\",\"password\":\"somePassword\"}";
-
-        mockMvc.perform(post("/api/auth/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(requestBody))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    @DisplayName("400 - empty password")
-    void no_password_login() throws Exception {
-        String requestBody = "{\"username\":\"testUser\",\"password\":\"\"}";
-
-        mockMvc.perform(post("/api/auth/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(requestBody))
-                .andExpect(status().isBadRequest());
-    }
 }
+

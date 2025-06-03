@@ -57,7 +57,7 @@ public class RegisterControllerTest {
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(requestBody))
                     .andExpect(status().isCreated())
-                    .andExpect(content().string("Register succes"));
+                    .andExpect(content().string("Register success"));
 
             verify(authService).register(validUsername, validPassword, validEmail);
         }
@@ -103,6 +103,17 @@ public class RegisterControllerTest {
                     .andExpect(jsonPath("$.message").value("Email already in use"))
                     .andExpect(jsonPath("$.status").value(409));
         }
+
+        @Test
+        @DisplayName("400 - invalid input data")
+        void invalid_data() throws Exception {
+            String requestBody = "{\"username\":\"\",\"password\":\"short\",\"email\":\"invalid-email\"}";
+
+            mockMvc.perform(post("/api/auth/register")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(requestBody))
+                    .andExpect(status().isBadRequest());
+        }
     }
 
     @Nested
@@ -120,7 +131,6 @@ public class RegisterControllerTest {
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(requestBody))
                     .andExpect(status().isBadRequest());
-
         }
 
         @Test
@@ -135,7 +145,6 @@ public class RegisterControllerTest {
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(requestBody))
                     .andExpect(status().isBadRequest());
-
         }
 
         @Test
@@ -150,7 +159,6 @@ public class RegisterControllerTest {
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(requestBody))
                     .andExpect(status().isBadRequest());
-
         }
 
         @Test
@@ -196,3 +204,4 @@ public class RegisterControllerTest {
         }
     }
 }
+
