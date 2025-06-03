@@ -42,8 +42,8 @@ function LoginPage() {
                 setError(response.data.error || 'Login failed');
             }
         } catch (err) {
-            if (err.response && err.response.data && err.response.data.error) {
-                setError(err.response.data.error);
+            if (err.response && err.response.data) {
+                setError(err.response.data.message);
             } else {
                 setError('Login failed. Please try again.');
             }
